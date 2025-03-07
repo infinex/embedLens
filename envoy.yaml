@@ -20,12 +20,15 @@ static_resources:
                   - name: envoy.filters.http.ext_authz
                     typed_config:
                       "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthz
-                      grpc_service:
-                        google_grpc:
-                          target_uri: auth_service:50051
-                          stat_prefix: ext_authz
-                        timeout: 0.5s
+                      transport_api_version: V3
+                      http_service:
+                        server_uri:
+                          uri: "http://auth_service:50051/auth"
+                      status_on_error:
+                        code: 502
                   - name: envoy.filters.http.router
+                    typed_config:
+                      "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
   clusters:
     - name: backend_service
       type: logical_dns
@@ -37,7 +40,8 @@ static_resources:
                   address:
                     socket_address: { address: backend, port_value: 8000 }
     - name: auth_service
-      type: logical_dns
+      type: strict_dns
+      connect_timeout: 0.25s
       load_assignment:
         cluster_name: auth_service
         endpoints:

@@ -12,10 +12,3 @@ services:
     build: ./auth_service
     ports:
       - "50051:50051"
-
-  backend:
-    image: tiangolo/uvicorn-gunicorn-fastapi:python3.8
-    volumes:
-      - ./backend:/app
-    ports:
-      - "8000:8000"
