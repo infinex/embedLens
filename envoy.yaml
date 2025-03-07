@@ -31,11 +31,16 @@ static_resources:
                           uri: "http://auth_service:50051/auth"
                           cluster: auth_service
                           timeout: 1s
-                      # This is correct.  It controls sending the body.
-                      with_request_body:
-                          max_request_bytes: 1024
-                          allow_partial_message: true
-                      status_on_error:
+                        authorization_request:
+                        allowed_headers:
+                          patterns:
+                          - exact: "authorization"   # Allow Authorization header
+                          - exact: "x-user-id"       # Allow custom header
+                          - prefix: "x-custom-"      # Allow all headers with this prefix
+                        authorization_response:
+                        allowed_upstream_headers:
+                          patterns:
+                          - exact: "x-authenticated-user"  # Pass auth-related headers to the backend                    status_on_error:
                         code: 502
                   - name: envoy.filters.http.router
                     typed_config:
