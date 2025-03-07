@@ -8,4 +8,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-CMD ["uvicorn", "auth_service:app", "--host", "0.0.0.0", "--port", "50051"]
+CMD ["uvicorn", "auth_service:app", "--host", "0.0.0.0", "--port", "50051", "--reload"]
