@@ -1,5 +1,26 @@
 /* ... (previous styles remain the same) */
 
+.visualization-container {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.controls {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.scatter-plot {
+  border: 1px solid #e8e8e8;
+  border-radius: 4px;
+  padding: 16px;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
 .progress-container {
   padding: 32px;
   max-width: 600px;

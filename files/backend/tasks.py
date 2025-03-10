@@ -3,8 +3,113 @@ from tenacity import retry, stop_after_attempt, wait_exponential
 import traceback
 from typing import List, Optional
 
-# ... (previous imports remain the same)
+from rq import Queue
+from redis import Redis
+from sqlalchemy.orm import Session
+import pandas as pd
+import numpy as np
+from pathlib import Path
+import os
 
+from .services.embeddings import get_embedding_model
+import numpy as np
+from sklearn.decomposition import PCA
+from umap import UMAP
+from sklearn.cluster import KMeans
+import asyncio
+
+
+from . import models, database
+
+redis_conn = Redis(
+    host=os.getenv("REDIS_HOST", "redis"),
+    port=int(os.getenv("REDIS_PORT", 6379))
+)
+queue = Queue("embeddings", connection=redis_conn)
+
+def get_db():
+    """Get database session for tasks"""
+    db = database.SessionLocal()
+    try:
+        return db
+    finally:
+        db.close()
+
+def process_file(file_id: int):
+    """Process uploaded file to extract columns and basic metadata"""
+    db = get_db()
+    file = db.query(models.File).get(file_id)
+    if not file:
+        return
+
+    try:
+        file_path = Path("uploads") / file.filename
+        
+        if file.file_type == "csv":
+            df = pd.read_csv(file_path)
+        elif file.file_type == "parquet":
+            df = pd.read_parquet(file_path)
+        else:
+            raise ValueError(f"Unsupported file type: {file.file_type}")
+
+        # Extract column information
+        columns = {
+            "names": df.columns.tolist(),
+            "types": df.dtypes.astype(str).to_dict(),
+            "sample_size": len(df),
+            "numeric_columns": df.select_dtypes(include=[np.number]).columns.tolist(),
+            "text_columns": df.select_dtypes(include=['object']).columns.tolist()
+        }
+
+        file.columns = columns
+        db.commit()
+
+    except Exception as e:
+        file.columns = {"error": str(e)}
+        db.commit()
+        raise
+
+def generate_embeddings(embedding_id: int, columns: list[str], model_name: str):
+    """Generate embeddings for selected columns"""
+    db = get_db()
+    embedding = db.query(models.Embedding).get(embedding_id)
+    if not embedding:
+        return
+
+    try:
+        embedding.status = "processing"
+        db.commit()
+
+        file = embedding.file
+        file_path = Path("uploads") / file.filename
+
+        if file.file_type == "csv":
+            df = pd.read_csv(file_path)
+        else:
+            df = pd.read_parquet(file_path)
+
+        # Select only requested columns
+        df = df[columns]
+
+        # TODO: Implement actual embedding generation based on model_name
+        # This is a placeholder that creates random embeddings
+        n_samples = len(df)
+        vector_dim = 768  # Example dimension for text embeddings
+        
+        embeddings = np.random.randn(n_samples, vector_dim)
+        
+        # Store embeddings using pgvector
+        # TODO: Implement actual storage using pgvector
+
+        embedding.status = "complete"
+        embedding.vector_dimension = vector_dim
+        db.commit()
+
+    except Exception as e:
+        embedding.status = "failed"
+        db.commit()
+        raise
+    
 class EmbeddingError(Exception):
     """Custom exception for embedding generation errors"""
     pass
@@ -185,3 +290,12 @@ async def generate_embeddings(embedding_id: int, columns: List[str], model_name:
         )
         
         raise
+    
+    
+    
+    from .services.embeddings import get_embedding_model
+import numpy as np
+from sklearn.decomposition import PCA
+from umap import UMAP
+from sklearn.cluster import KMeans
+import asyncio
