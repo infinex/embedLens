@@ -1,0 +1,33 @@
+/* ... (previous styles remain the same) */
+
+.progress-container {
+  padding: 32px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.current-step {
+  margin-top: 16px;
+  text-align: center;
+  color: #666;
+  text-transform: capitalize;
+}
+
+.export-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.filters {
+  margin-top: 16px;
+  padding: 16px;
+  border-top: 1px solid #e8e8e8;
+}
+
+.tooltip {
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 8px;
+  border-radius: 4px;
+  font-size: 12px;
+}
