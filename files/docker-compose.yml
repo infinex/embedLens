@@ -2,8 +2,7 @@ version: "3.9"
 
 services:
   postgres:
-    build:
-      context: ./docker/postgres
+    image: pgvector/pgvector:latest
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: secret
