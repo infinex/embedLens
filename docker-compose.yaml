@@ -2,18 +2,25 @@ version: '3.8'
 
 services:
   envoy:
-    image: envoyproxy/envoy:v1.33.0
+    image: envoyproxy/envoy:v1.22.0
     volumes:
       - ./envoy.yaml:/etc/envoy/envoy.yaml
     ports:
       - "8080:8080"
+    depends_on:
+      - auth_service
+      - backend_service
 
   auth_service:
-    build: ./auth_service
+    build:
+      context: ./auth_service
     ports:
       - "50051:50051"
-    volumes:
-      - ./auth_service:/app
+
+  backend_service:
+    build:
+      context: ./backend_service
+    ports:
+      - "8012:8012"
 
 
-    

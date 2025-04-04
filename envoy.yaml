@@ -26,22 +26,28 @@ static_resources:
                     typed_config:
                       "@type": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthz
                       transport_api_version: V3
+                      # status_on_error belongs directly under ExtAuthz config
+                      status_on_error:
+                        code: 502 # You might prefer the enum representation like INTERNAL_SERVER_ERROR if supported by your specific Envoy version/setup, but numeric 502 often works.
+                      # http_service configures HOW to connect to the auth service
                       http_service:
                         server_uri:
                           uri: "http://auth_service:50051/auth"
                           cluster: auth_service
                           timeout: 1s
+                        # authorization_request defines WHAT to send TO the auth service
                         authorization_request:
-                        allowed_headers:
-                          patterns:
-                          - exact: "authorization"   # Allow Authorization header
-                          - exact: "x-user-id"       # Allow custom header
-                          - prefix: "x-custom-"      # Allow all headers with this prefix
+                          allowed_headers:
+                            patterns:
+                            - exact: "authorization"   # Allow Authorization header
+                            - exact: "x-user-id"       # Allow custom header
+                            - prefix: "x-custom-"      # Allow all headers with this prefix
+                        # authorization_response defines WHAT to get back FROM the auth service and pass upstream
                         authorization_response:
-                        allowed_upstream_headers:
-                          patterns:
-                          - exact: "x-authenticated-user"  # Pass auth-related headers to the backend                    status_on_error:
-                        code: 502
+                          allowed_upstream_headers:
+                            patterns:
+                            - exact: "x-user-id"  # Pass auth-related headers to the backend
+
                   - name: envoy.filters.http.router
                     typed_config:
                       "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
@@ -73,4 +79,4 @@ static_resources:
                   address:
                     socket_address:
                       address: backend_service  # <--- Your backend service's hostname or IP
-                      port_value: 80  # <--- and port
+                      port_value: 8012  # <--- and port
