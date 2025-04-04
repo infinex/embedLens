@@ -1,4 +1,4 @@
-from services.progress import progress_tracker
+from .services.progress import progress_tracker
 from tenacity import retry, stop_after_attempt, wait_exponential
 import traceback
 from typing import List, Optional
@@ -11,7 +11,7 @@ import numpy as np
 from pathlib import Path
 import os
 
-from services.embeddings import get_embedding_model, EmbeddingModel
+from .services.embeddings import get_embedding_model
 import numpy as np
 from sklearn.decomposition import PCA
 from umap import UMAP
@@ -19,7 +19,7 @@ from sklearn.cluster import KMeans
 import asyncio
 
 
-import models, database
+from . import models, database
 
 redis_conn = Redis(
     host=os.getenv("REDIS_HOST", "redis"),

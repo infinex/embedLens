@@ -1,9 +1,9 @@
-from services.progress import progress_tracker
+from ..services.progress import progress_tracker
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List
 
-import models, schemas, database, auth, tasks
+from .. import models, schemas, database, auth, tasks
 
 router = APIRouter()
 

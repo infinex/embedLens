@@ -1,7 +1,7 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer
 from sqlalchemy.orm import Session
-import models, schemas, database
+from . import models, schemas, database
 from typing import Optional
 
 security = HTTPBearer()
@@ -12,7 +12,7 @@ async def verify_token(token: str) -> dict:
     """
     # In production, verify token with your auth provider
     # For development, you might want to accept any token
-    return {"x-user-id": "test-user", "email": "test@example.com"}
+    return {"sub": "test-user", "email": "test@example.com"}
 
 async def get_current_user(
     token: str = Depends(security),
@@ -26,7 +26,7 @@ async def get_current_user(
     
     try:
         payload = await verify_token(token.credentials)
-        external_id: str = payload.get("x-user-id")
+        external_id: str = payload.get("sub")
         if external_id is None:
             raise credentials_exception
     except Exception:
@@ -36,11 +36,11 @@ async def get_current_user(
     user = db.query(models.User).filter(models.User.external_id == external_id).first()
     if not user:
         user = models.User(
-            external_id=payload.get("x-user-id"),
+            external_id=external_id,
             email=payload.get("email")
         )
         db.add(user)
         db.commit()
         db.refresh(user)
     
-    return user 
+    return user
