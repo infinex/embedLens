@@ -3,8 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from typing import List
 
-from . import models, schemas, database, auth
-from .routers import projects, files, embeddings
+import models, schemas, database, auth
+from routers import projects, files, embeddings
 
 app = FastAPI(title="Embedding Visualizer API")
 

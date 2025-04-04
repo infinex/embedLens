@@ -6,7 +6,7 @@ import uuid
 import os
 from pathlib import Path
 
-from .. import models, schemas, database, auth, tasks
+import models, schemas, database, auth, tasks
 
 router = APIRouter()
 
