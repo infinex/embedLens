@@ -20,8 +20,6 @@ services:
       context: ./backend
     ports:
       - "8000:8000"
-    volumes:
-      - ./backend:/apph
     environment:
       DATABASE_URL: postgresql://admin:secret@postgres:5432/embeddings
       REDIS_URL: redis://redis:6379/0
@@ -29,15 +27,15 @@ services:
       - postgres
       - redis
 
-  # frontend:
-  #   build:
-  #     context: ./frontend
-  #   ports:
-  #     - "3000:3000"
-  #   environment:
-  #     BACKEND_URL: http://backend:8000
-  #   depends_on:
-      # - backend
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "3000:3000"
+    environment:
+      BACKEND_URL: http://backend:8000
+    depends_on:
+      - backend
 
 volumes:
   postgres_data:
