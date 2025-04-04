@@ -1,15 +1,12 @@
-version: "3.9"
-
 services:
   postgres:
-    image: pgvector/pgvector:latest
+    image: pgvector/pgvector:0.8.0-pg17
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: secret
       POSTGRES_DB: embeddings
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "5432:5432"
 
