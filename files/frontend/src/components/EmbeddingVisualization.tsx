@@ -4,11 +4,6 @@ import { Select, Radio, Spin, Button, Progress, Alert } from 'antd';
 import { DownloadOutlined } from '@ant-design/icons';
 import { useParams } from 'react-router-dom';
 
-import React, { useEffect, useState } from 'react';
-import { DeepScatter } from 'deep-scatter';
-import { Select, Radio, Spin } from 'antd';
-import { useParams } from 'react-router-dom';
-
 interface Point {
   x: number;
   y: number;
@@ -24,6 +19,16 @@ interface Visualization {
   clusters: number[];
 }
 
+interface ProgressInfo {
+  status: string;
+  progress: number;
+  current_step?: string;
+  error?: {
+    error: string;
+    traceback: string;
+  };
+}
+
 const EmbeddingVisualization: React.FC = () => {
   const { embeddingId } = useParams<{ embeddingId: string }>();
   const [visualizations, setVisualizations] = useState<Visualization[]>([]);
@@ -31,6 +36,8 @@ const EmbeddingVisualization: React.FC = () => {
   const [selectedMethod, setSelectedMethod] = useState<string>('umap');
   const [dimensions, setDimensions] = useState<number>(2);
   const [points, setPoints] = useState<Point[]>([]);
+  const [filteredPoints, setFilteredPoints] = useState<Point[]>([]);
+  const [progress, setProgress] = useState<ProgressInfo | null>(null);
 
   useEffect(() => {
     const fetchVisualizations = async () => {
@@ -61,6 +68,7 @@ const EmbeddingVisualization: React.FC = () => {
             cluster: vis.clusters[index]
           }));
           setPoints(transformedPoints);
+          setFilteredPoints(transformedPoints); // Initialize filtered points with all points
         }
       } catch (error) {
         console.error('Error fetching visualizations:', error);
@@ -71,64 +79,6 @@ const EmbeddingVisualization: React.FC = () => {
 
     fetchVisualizations();
   }, [embeddingId, selectedMethod, dimensions]);
-
-  if (loading) {
-    return <Spin size="large" />;
-  }
-
-  return (
-    <div className="visualization-container">
-      <div className="controls">
-        <Radio.Group 
-          value={selectedMethod}
-          onChange={(e) => setSelectedMethod(e.target.value)}
-        >
-          <Radio.Button value="umap">UMAP</Radio.Button>
-          <Radio.Button value="pca">PCA</Radio.Button>
-        </Radio.Group>
-
-        <Radio.Group 
-          value={dimensions}
-          onChange={(e) => setDimensions(e.target.value)}
-        >
-          <Radio.Button value={2}>2D</Radio.Button>
-          <Radio.Button value={3}>3D</Radio.Button>
-        </Radio.Group>
-      </div>
-
-      <div className="scatter-plot">
-        <DeepScatter
-          points={points}
-          xField="x"
-          yField="y"
-          zField={dimensions === 3 ? "z" : undefined}
-          colorField="cluster"
-          width={800}
-          height={600}
-          pointSize={5}
-          colorScheme="category10"
-          interactionMode={dimensions === 3 ? "orbit" : "pan"}
-        />
-      </div>
-    </div>
-  );
-}
-
-export default EmbeddingVisualization;
-
-interface ProgressInfo {
-  status: string;
-  progress: number;
-  current_step?: string;
-  error?: {
-    error: string;
-    traceback: string;
-  };
-}
-
-const EmbeddingVisualization: React.FC = () => {
-  // ... (previous state definitions remain the same)
-  const [progress, setProgress] = useState<ProgressInfo | null>(null);
 
   useEffect(() => {
     const pollProgress = async () => {
@@ -274,7 +224,7 @@ const EmbeddingVisualization: React.FC = () => {
 
       <div className="scatter-plot">
         <DeepScatter
-          points={points}
+          points={filteredPoints}  {/* Use filteredPoints instead of points */}
           xField="x"
           yField="y"
           zField={dimensions === 3 ? "z" : undefined}
