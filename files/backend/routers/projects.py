@@ -11,7 +11,7 @@ async def list_projects(
     current_user: schemas.User = Depends(auth.get_current_user),
     db: Session = Depends(database.get_db)
 ):
-    return db.query(models.Project).filter(models.Project.user_id == current_user.id).all()
+    return db.query(models.Project).filter(models.Project.user_id == current_user.user_id).all()
 
 @router.post("/", response_model=schemas.Project)
 async def create_project(
@@ -19,7 +19,7 @@ async def create_project(
     current_user: schemas.User = Depends(auth.get_current_user),
     db: Session = Depends(database.get_db)
 ):
-    db_project = models.Project(**project.dict(), user_id=current_user.id)
+    db_project = models.Project(**project.dict(), user_id=current_user.user_id)
     db.add(db_project)
     db.commit()
     db.refresh(db_project)
@@ -32,8 +32,8 @@ async def get_project(
     db: Session = Depends(database.get_db)
 ):
     project = db.query(models.Project).filter(
-        models.Project.id == project_id,
-        models.Project.user_id == current_user.id
+        models.Project.project_id == project_id,
+        models.Project.user_id == current_user.user_id
     ).first()
     if project is None:
         raise HTTPException(status_code=404, detail="Project not found")
@@ -46,8 +46,8 @@ async def delete_project(
     db: Session = Depends(database.get_db)
 ):
     project = db.query(models.Project).filter(
-        models.Project.id == project_id,
-        models.Project.user_id == current_user.id
+        models.Project.project_id == project_id,
+        models.Project.user_id == current_user.user_id
     ).first()
     if project is None:
         raise HTTPException(status_code=404, detail="Project not found")

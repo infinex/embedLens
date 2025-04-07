@@ -52,7 +52,4 @@ class HuggingFaceEmbedding(EmbeddingModel):
             raise ValueError(f"HuggingFace model error: {str(e)}")
 
 def get_embedding_model(model_name: str) -> EmbeddingModel:
-    if model_name.startswith("text-embedding-"):
-        return OpenAIEmbedding(model_name)
-    else:
-        return HuggingFaceEmbedding(model_name)
+    return HuggingFaceEmbedding()

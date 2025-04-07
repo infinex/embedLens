@@ -6,7 +6,7 @@ class UserBase(BaseModel):
     email: EmailStr
 
 class User(UserBase):
-    id: int
+    user_id: int
     external_id: str
     created_at: datetime
 
@@ -21,7 +21,7 @@ class ProjectCreate(ProjectBase):
     pass
 
 class Project(ProjectBase):
-    id: int
+    project_id: int
     user_id: int
     created_at: datetime
 
@@ -36,7 +36,7 @@ class FileCreate(FileBase):
     project_id: int
 
 class File(FileBase):
-    id: int
+    file_id: int
     original_filename: str
     project_id: int
     columns: Optional[Dict[str, Any]]
@@ -53,7 +53,7 @@ class EmbeddingCreate(EmbeddingBase):
     file_id: int
 
 class Embedding(EmbeddingBase):
-    id: int
+    embedding_id: int
     file_id: int
     status: str
     created_at: datetime
@@ -69,7 +69,7 @@ class VisualizationCreate(VisualizationBase):
     embedding_id: int
 
 class Visualization(VisualizationBase):
-    id: int
+    visualization_id: int
     embedding_id: int
     coordinates: List[List[float]]
     clusters: Optional[List[int]]

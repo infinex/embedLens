@@ -18,7 +18,6 @@ from umap import UMAP
 from sklearn.cluster import KMeans
 import asyncio
 
-
 import models, database
 
 redis_conn = Redis(
@@ -69,47 +68,6 @@ def process_file(file_id: int):
         db.commit()
         raise
 
-def generate_embeddings(embedding_id: int, columns: list[str], model_name: str):
-    """Generate embeddings for selected columns"""
-    db = get_db()
-    embedding = db.query(models.Embedding).get(embedding_id)
-    if not embedding:
-        return
-
-    try:
-        embedding.status = "processing"
-        db.commit()
-
-        file = embedding.file
-        file_path = Path("uploads") / file.filename
-
-        if file.file_type == "csv":
-            df = pd.read_csv(file_path)
-        else:
-            df = pd.read_parquet(file_path)
-
-        # Select only requested columns
-        df = df[columns]
-
-        # TODO: Implement actual embedding generation based on model_name
-        # This is a placeholder that creates random embeddings
-        n_samples = len(df)
-        vector_dim = 768  # Example dimension for text embeddings
-        
-        embeddings = np.random.randn(n_samples, vector_dim)
-        
-        # Store embeddings using pgvector
-        # TODO: Implement actual storage using pgvector
-
-        embedding.status = "complete"
-        embedding.vector_dimension = vector_dim
-        db.commit()
-
-    except Exception as e:
-        embedding.status = "failed"
-        db.commit()
-        raise
-    
 class EmbeddingError(Exception):
     """Custom exception for embedding generation errors"""
     pass
@@ -217,7 +175,7 @@ async def generate_embeddings(embedding_id: int, columns: List[str], model_name:
         clusters = kmeans.fit_predict(embeddings)
         
         vis_2d = models.Visualization(
-            embedding_id=embedding.id,
+            embedding_id=embedding.embedding_id,
             method="umap",
             dimensions=2,
             coordinates=coords_2d.tolist(),
@@ -236,7 +194,7 @@ async def generate_embeddings(embedding_id: int, columns: List[str], model_name:
         coords_3d = umap_3d.fit_transform(embeddings)
         
         vis_3d = models.Visualization(
-            embedding_id=embedding.id,
+            embedding_id=embedding.embedding_id,
             method="umap",
             dimensions=3,
             coordinates=coords_3d.tolist(),
@@ -255,7 +213,7 @@ async def generate_embeddings(embedding_id: int, columns: List[str], model_name:
         pca_coords_2d = pca_2d.fit_transform(embeddings)
         
         vis_pca_2d = models.Visualization(
-            embedding_id=embedding.id,
+            embedding_id=embedding.embedding_id,
             method="pca",
             dimensions=2,
             coordinates=pca_coords_2d.tolist(),
@@ -290,12 +248,3 @@ async def generate_embeddings(embedding_id: int, columns: List[str], model_name:
         )
         
         raise
-    
-    
-    
-    from .services.embeddings import get_embedding_model
-import numpy as np
-from sklearn.decomposition import PCA
-from umap import UMAP
-from sklearn.cluster import KMeans
-import asyncio

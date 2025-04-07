@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Embedding Visualization with Lasso & Cluster Info</title>
+    <style>
+        /* ... (CSS styles remain exactly the same) ... */
+         body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+        #scatterplot-container {
+            flex-grow: 1; /* Takes up remaining space */
+            position: relative; /* Needed for absolute positioning of canvas */
+            border: 1px solid #ccc;
+            background-color: #fff;
+            min-height: 400px; /* Ensure it has some height */
+        }
+        #scatterplot-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        #info-panel {
+            display: flex;
+            padding: 10px;
+            background-color: #eee;
+            border-top: 1px solid #ccc;
+            min-height: 100px; /* Min height for info */
+            max-height: 30vh; /* Max height */
+            overflow-y: auto; /* Scroll if needed */
+        }
+        .info-section {
+            flex: 1;
+            padding: 0 10px;
+            border-right: 1px solid #ddd;
+        }
+        .info-section:last-child {
+            border-right: none;
+        }
+        h3 {
+            margin-top: 0;
+            font-size: 1em;
+            color: #333;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            font-size: 0.9em;
+            max-height: 15vh; /* Limit list height */
+            overflow-y: auto;
+        }
+        li {
+            margin-bottom: 4px;
+            color: #555;
+        }
+         pre {
+             font-size: 0.9em;
+             color: #444;
+             white-space: pre-wrap; /* Wrap long lines */
+             word-wrap: break-word;
+        }
+        button {
+            margin: 5px;
+            padding: 5px 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="scatterplot-container">
+        <canvas id="scatterplot-canvas"></canvas>
+    </div>
+
+    <div id="info-panel">
+        <div class="info-section">
+            <h3>Lasso Selection (<span id="selected-count">0</span> points)</h3>
+            <button id="clear-selection-btn">Clear Selection</button>
+            <ul id="selected-points-list">
+                <li>No points selected.</li>
+            </ul>
+        </div>
+        <div class="info-section">
+            <h3>Simulated Cluster Description (Based on View)</h3>
+            <pre id="cluster-description">Pan and zoom to see descriptions.</pre>
+        </div>
+    </div>
+
+    <!-- Load regl-scatterplot library (using a CDN for simplicity) -->
+    <!-- IMPORTANT: This script MUST come BEFORE the script that uses it -->
+    <script src="https://unpkg.com/regl-scatterplot@1.14.0/dist/regl-scatterplot.js"></script>
+
+    <!-- Load lodash debounce (optional but recommended for view changes) -->
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+
+    <script>
+        // --- Ensure DOM is ready and libraries potentially loaded ---
+        // Although scripts execute sequentially, wrapping in DOMContentLoaded
+        // is a good practice, though not strictly necessary here as scripts
+        // are at the end of body.
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- 1. Simulation Data ---
+            // ... (Simulation data generation code remains exactly the same) ...
+            const NUM_POINTS = 5000;
+            const points = [];
+            const categories = [
+                { name: "Technology", center: [-0.6, 0.6], stdDev: 0.1, color: [0.1, 0.3, 0.8, 0.8] }, // Blue
+                { name: "Sports", center: [0.6, 0.5], stdDev: 0.12, color: [0.8, 0.1, 0.1, 0.8] }, // Red
+                { name: "Science", center: [0.0, -0.5], stdDev: 0.15, color: [0.1, 0.8, 0.2, 0.8] }, // Green
+                { name: "Arts & Culture", center: [-0.5, -0.4], stdDev: 0.08, color: [0.8, 0.1, 0.8, 0.8] }, // Purple
+                { name: "Finance", center: [0.7, -0.3], stdDev: 0.09, color: [1.0, 0.6, 0.0, 0.8] }  // Orange
+            ];
+            const pointData = []; // Store original data { x, y, label, categoryIndex }
+
+            function gaussianRandom(mean = 0, stdev = 1) {
+                const u = 1 - Math.random(); // Converting [0,1) to (0,1]
+                const v = Math.random();
+                const z = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+                return z * stdev + mean;
+            }
+
+            for (let i = 0; i < NUM_POINTS; ++i) {
+                const categoryIndex = Math.floor(Math.random() * categories.length);
+                const category = categories[categoryIndex];
+                const x = gaussianRandom(category.center[0], category.stdDev);
+                const y = gaussianRandom(category.center[1], category.stdDev);
+                const clampedX = Math.max(-1, Math.min(1, x));
+                const clampedY = Math.max(-1, Math.min(1, y));
+                points.push(clampedX, clampedY);
+                pointData.push({
+                    x: clampedX,
+                    y: clampedY,
+                    label: `${category.name} Document #${i + 1}`,
+                    categoryIndex: categoryIndex
+                });
+            }
+            const pointColors = pointData.map(p => categories[p.categoryIndex].color);
+
+
+            // --- 2. DOM Elements ---
+            const canvas = document.getElementById('scatterplot-canvas');
+            const container = document.getElementById('scatterplot-container');
+            const selectedCountEl = document.getElementById('selected-count');
+            const selectedListEl = document.getElementById('selected-points-list');
+            const clusterDescEl = document.getElementById('cluster-description');
+            const clearSelectionBtn = document.getElementById('clear-selection-btn');
+
+            // --- 3. Initialize regl-scatterplot ---
+            let scatterplot;
+
+            // **Crucial Check:** Verify the library function exists before calling it
+            if (typeof createScatterplot === 'undefined') {
+                console.error("Fatal Error: createScatterplot function not found. Check if the regl-scatterplot library loaded correctly.");
+                container.innerHTML = "<p style='color:red; padding: 10px;'>Error: Could not load the scatterplot library. Please check the browser console (F12) -> Network tab to ensure 'regl-scatterplot.umd.js' loaded successfully.</p>";
+                return; // Stop execution if the library isn't loaded
+            }
+             if (typeof _ === 'undefined') {
+                 console.warn("Warning: Lodash (_) not found. Debouncing for view updates will not work. Performance might degrade on rapid interaction.");
+                 // Define a dummy debounce if lodash is missing to avoid errors later
+                 window._ = { debounce: (fn) => fn };
+             }
+
+
+            try {
+                scatterplot = createScatterplot({ // Direct call - this is correct for the UMD build
+                    canvas: canvas,
+                    width: container.clientWidth,
+                    height: container.clientHeight,
+                    pointSize: 5,
+                    pointColor: pointColors,
+                    pointColorActive: [0.3, 0.3, 0.3, 1.0],
+                    pointColorHover: [0.5, 0.5, 0.5, 1.0],
+                    opacity: 0.7,
+                    lassoInitiator: true,
+                    lassoColor: [0.3, 0.3, 0.3, 0.5],
+                    showRecticle: true,
+                    recticleColor: [0.9, 0.9, 0.9, 0.7],
+                });
+
+                scatterplot.draw(points);
+
+            } catch (error) {
+                console.error("Error initializing regl-scatterplot:", error);
+                container.innerHTML = "Error initializing WebGL or Scatterplot. Please ensure your browser supports WebGL and check the console for details.";
+                // Optionally display the error message:
+                // container.innerHTML += `<pre style="color:red; font-size: 0.8em;">${error.stack || error.message}</pre>`;
+            }
+
+            // --- 4. Handle Resizing ---
+            // ... (ResizeObserver code remains the same) ...
+             const resizeObserver = new ResizeObserver(entries => {
+                if (!scatterplot) return;
+                for (let entry of entries) {
+                    const { width, height } = entry.contentRect;
+                    // Ensure non-zero dimensions before setting
+                    if (width > 0 && height > 0) {
+                        scatterplot.set({ width, height });
+                    }
+                }
+            });
+            if (container) { // Check if container exists before observing
+                 resizeObserver.observe(container);
+            }
+
+
+            // --- 5. Lasso Selection Handling ---
+            // ... (handleSelection function remains the same) ...
+            const handleSelection = (selectedIndices) => {
+                selectedCountEl.textContent = selectedIndices.length;
+                selectedListEl.innerHTML = '';
+
+                if (selectedIndices.length === 0) {
+                    selectedListEl.innerHTML = '<li>No points selected.</li>';
+                    return;
+                }
+
+                const maxToShow = 50;
+                for (let i = 0; i < Math.min(selectedIndices.length, maxToShow); ++i) {
+                    const index = selectedIndices[i];
+                    if (index >= 0 && index < pointData.length) { // Add bounds check
+                         const data = pointData[index];
+                         const li = document.createElement('li');
+                         li.textContent = data.label;
+                         selectedListEl.appendChild(li);
+                    } else {
+                         console.warn(`Invalid index ${index} encountered during selection display.`);
+                    }
+                }
+                if (selectedIndices.length > maxToShow) {
+                     const li = document.createElement('li');
+                     li.textContent = `...and ${selectedIndices.length - maxToShow} more.`;
+                     li.style.fontStyle = 'italic';
+                     selectedListEl.appendChild(li);
+                }
+            };
+
+            if (scatterplot) {
+                 scatterplot.subscribe('select', (event) => {
+                    // Ensure event.points is an array
+                    handleSelection(Array.isArray(event.points) ? event.points : []);
+                 });
+
+                 clearSelectionBtn.addEventListener('click', () => {
+                     if (scatterplot) { // Check if scatterplot exists before calling select
+                         scatterplot.select([]);
+                         handleSelection([]);
+                     }
+                 });
+            } else {
+                // Disable button if scatterplot failed to initialize
+                clearSelectionBtn.disabled = true;
+            }
+
+
+            // --- 6. Simulated Cluster Description (Based on View) ---
+             // ... (All helper functions: updateClusterDescription, countCategories,
+             //     describeDominantCategories, getApproxVisiblePointIndices remain the same) ...
+            function countCategories(dataSubset) {
+                const counts = {};
+                dataSubset.forEach(p => {
+                    counts[p.categoryIndex] = (counts[p.categoryIndex] || 0) + 1;
+                });
+                return counts;
+            }
+
+            function describeDominantCategories(categoryCounts, totalPointsInView) {
+                 if (totalPointsInView === 0) return "No points visible in this area.";
+
+                 const sortedCategories = Object.entries(categoryCounts)
+                    .map(([catIdx, count]) => ({
+                        name: categories[parseInt(catIdx, 10)]?.name || `Unknown Category ${catIdx}`, // Safer access
+                        count: count,
+                        percentage: ((count / totalPointsInView) * 100).toFixed(1)
+                    }))
+                    .sort((a, b) => b.count - a.count);
+
+                if (sortedCategories.length === 0) return "No points with categories found in this view.";
+
+                let desc = `Dominant categories (${totalPointsInView} points analyzed):\n`;
+                sortedCategories.slice(0, 3).forEach(cat => {
+                    desc += `- ${cat.name} (~${cat.percentage}%)\n`;
+                });
+                 if (sortedCategories.length > 3) {
+                     desc += `- ... and others.\n`;
+                 }
+                return desc;
+            }
+
+            function getApproxVisiblePointIndices(camera, viewMatrix, allPointsFlat, allPointData) {
+                 const indices = [];
+                 if (!camera || !allPointData) return indices; // Basic check
+
+                 const viewWidth = camera.distance * 2.5; // Adjusted multiplier slightly
+                 const viewHeight = camera.distance * 2.5;
+                 const centerX = camera.target[0];
+                 const centerY = camera.target[1];
+
+                 const minX = centerX - viewWidth / 2;
+                 const maxX = centerX + viewWidth / 2;
+                 const minY = centerY - viewHeight / 2;
+                 const maxY = centerY + viewHeight / 2;
+
+                 // Optimization: If view is huge, maybe don't check all points?
+                 // const MAX_POINTS_TO_CHECK = 20000;
+                 // const step = allPointData.length > MAX_POINTS_TO_CHECK ? Math.floor(allPointData.length / MAX_POINTS_TO_CHECK) : 1;
+
+                 for(let i = 0; i < allPointData.length; i++) { // Removed sampling for now (step)
+                     const p = allPointData[i];
+                     // Add check for valid point data
+                     if (typeof p?.x === 'number' && typeof p?.y === 'number') {
+                        if (p.x >= minX && p.x <= maxX && p.y >= minY && p.y <= maxY) {
+                            indices.push(i);
+                        }
+                     }
+                 }
+                 return indices;
+            }
+
+            // Debounce the view handler
+            const debouncedUpdateClusterDescription = _.debounce(updateClusterDescription, 300);
+
+            function updateClusterDescription() {
+                if (!scatterplot) {
+                    clusterDescEl.textContent = "Scatterplot not initialized.";
+                    return;
+                };
+
+                try {
+                    const camera = scatterplot.get('camera');
+                    const view = scatterplot.get('view'); // Might not be needed for this simple version
+                    const currentPointsInfo = scatterplot.get('points'); // May return indices or flat array based on version/state
+                     const allPoints = points; // Use original flat array for coordinate lookup via index
+
+
+                    // Ensure camera state is valid
+                    if (!camera || !Array.isArray(camera.target) || typeof camera.distance !== 'number') {
+                        console.warn("Invalid camera state received.");
+                        clusterDescEl.textContent = "Waiting for valid view state...";
+                        return;
+                    }
+
+                    const zoomLevel = camera.distance;
+                    let description = "";
+                    // Use the original pointData and the flat 'points' array
+                    const visiblePointIndices = getApproxVisiblePointIndices(camera, view, allPoints, pointData);
+
+                    if (visiblePointIndices.length === 0 && pointData.length > 0) {
+                         // Check if we are simply outside the bounds of *all* data
+                         let minDataX = Infinity, maxDataX = -Infinity, minDataY = Infinity, maxDataY = -Infinity;
+                         pointData.forEach(p => {
+                             minDataX = Math.min(minDataX, p.x);
+                             maxDataX = Math.max(maxDataX, p.x);
+                             minDataY = Math.min(minDataY, p.y);
+                             maxDataY = Math.max(maxDataY, p.y);
+                         });
+
+                         const viewWidth = camera.distance * 2.5;
+                         const viewHeight = camera.distance * 2.5;
+                         const viewMinX = camera.target[0] - viewWidth / 2;
+                         const viewMaxX = camera.target[0] + viewWidth / 2;
+                         const viewMinY = camera.target[1] - viewHeight / 2;
+                         const viewMaxY = camera.target[1] + viewHeight / 2;
+
+                         if (viewMaxX < minDataX || viewMinX > maxDataX || viewMaxY < minDataY || viewMinY > maxDataY) {
+                             description = "Current view is outside the range of the data.";
+                         } else if (zoomLevel < 0.1) { // Arbitrary threshold for very close zoom
+                              description = "Zoomed in very closely or viewing an empty area within the data range.";
+                         }
+                         else {
+                             description = "No data points visible in the current view area.";
+                         }
+
+                    } else if (zoomLevel > 2.5) {
+                        description = "Overall View:\n";
+                        // Analyze *all* points for the overall view description
+                        const allCategoryCounts = countCategories(pointData);
+                        description += describeDominantCategories(allCategoryCounts, pointData.length);
+
+                    } else if (zoomLevel > 0.5) {
+                        description = "Regional View:\n";
+                         if (visiblePointIndices.length > 0) {
+                            const visibleData = visiblePointIndices.map(idx => pointData[idx]);
+                            const categoryCounts = countCategories(visibleData);
+                            description += describeDominantCategories(categoryCounts, visibleData.length);
+                         } else {
+                             description += "Examining a sparse or moderately dense area."; // Should be covered by the length === 0 case above
+                         }
+
+                    } else { // Zoomed In
+                         description = "Close-up View:\n";
+                         if (visiblePointIndices.length > 0) {
+                            const visibleData = visiblePointIndices.map(idx => pointData[idx]);
+                            const categoryCounts = countCategories(visibleData);
+                            if (visibleData.length < 20) {
+                                const categoryNames = [...new Set(Object.keys(categoryCounts).map(catIdx => categories[parseInt(catIdx, 10)]?.name || 'Unknown'))].join(', ');
+                                description += `Showing ${visibleData.length} individual points primarily from: ${categoryNames || 'N/A'}\n`;
+                                // Show labels only if very few points
+                                if (visibleData.length <= 5) {
+                                    description += visibleData.map(p => `- ${p.label}`).join('\n');
+                                }
+                            } else {
+                               description += `Concentrated area contains points mostly related to:\n`;
+                               description += describeDominantCategories(categoryCounts, visibleData.length);
+                            }
+                         } else {
+                             description += "Focusing on a specific point or sparse area."; // Should be covered by length === 0 case
+                         }
+                    }
+
+                    clusterDescEl.textContent = description;
+
+                } catch (viewError) {
+                     console.error("Error during view update:", viewError);
+                     clusterDescEl.textContent = "Error updating view description.";
+                }
+            }
+
+
+            if (scatterplot) {
+                // Subscribe to view changes using the debounced handler
+                scatterplot.subscribe('view', debouncedUpdateClusterDescription);
+
+                // Initial call to set the description
+                // Use setTimeout to allow the first render potentially to complete
+                setTimeout(updateClusterDescription, 100);
+            } else {
+                 clusterDescEl.textContent = "Scatterplot initialization failed. Cannot display view descriptions.";
+            }
+        }); // End of DOMContentLoaded listener
+
+    </script>
+</body>
+</html>

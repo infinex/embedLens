@@ -15,9 +15,26 @@ services:
     ports:
       - "6379:6379"
 
+  worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.worker
+    environment:
+      DATABASE_URL: postgresql://admin:secret@postgres/embeddings
+      REDIS_HOST: redis
+    command: python worker.py
+    depends_on:
+      - redis
+    volumes:
+      - ./backend:/app
+    restart: always
+
+
   backend:
     build:
       context: ./backend
+    volumes:
+      - ./backend:/app
     ports:
       - "8000:8000"
     environment:

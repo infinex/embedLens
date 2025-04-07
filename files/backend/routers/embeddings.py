@@ -17,8 +17,8 @@ async def generate_embeddings(
 ):
     # Check file exists and belongs to user
     file = db.query(models.File).join(models.Project).filter(
-        models.File.id == file_id,
-        models.Project.user_id == current_user.id
+        models.File.file_id == file_id,
+        models.Project.user_id == current_user.user_id
     ).first()
     if not file:
         raise HTTPException(status_code=404, detail="File not found")
@@ -49,7 +49,7 @@ async def generate_embeddings(
     # Enqueue embedding generation task
     tasks.queue.enqueue(
         tasks.generate_embeddings,
-        embedding.id,
+        embedding.embedding_id,
         columns,
         model_name,
         job_timeout="1h"
@@ -64,8 +64,8 @@ async def get_embedding_status(
     db: Session = Depends(database.get_db)
 ):
     embedding = db.query(models.Embedding).join(models.File).join(models.Project).filter(
-        models.Embedding.id == embedding_id,
-        models.Project.user_id == current_user.id
+        models.Embedding.embedding_id == embedding_id,
+        models.Project.user_id == current_user.user_id
     ).first()
     if not embedding:
         raise HTTPException(status_code=404, detail="Embedding not found")
@@ -80,8 +80,8 @@ async def get_embedding_progress(
 ):
     # Verify user has access to this embedding
     embedding = db.query(models.Embedding).join(models.File).join(models.Project).filter(
-        models.Embedding.id == embedding_id,
-        models.Project.user_id == current_user.id
+        models.Embedding.embedding_id == embedding_id,
+        models.Project.user_id == current_user.user_id
     ).first()
     
     if not embedding:

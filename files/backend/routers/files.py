@@ -28,8 +28,8 @@ async def upload_file(
 ):
     # Check project exists and belongs to user
     project = db.query(models.Project).filter(
-        models.Project.id == project_id,
-        models.Project.user_id == current_user.id
+        models.Project.project_id == project_id,
+        models.Project.user_id == current_user.user_id
     ).first()
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
@@ -67,7 +67,7 @@ async def upload_file(
     # Enqueue file processing task
     tasks.queue.enqueue(
         tasks.process_file,
-        db_file.id,
+        db_file.file_id,
         job_timeout="10m"
     )
 
@@ -81,8 +81,8 @@ async def list_files(
 ):
     # Check project exists and belongs to user
     project = db.query(models.Project).filter(
-        models.Project.id == project_id,
-        models.Project.user_id == current_user.id
+        models.Project.project_id == project_id,
+        models.Project.user_id == current_user.user_id
     ).first()
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
@@ -96,8 +96,8 @@ async def get_file_columns(
     db: Session = Depends(database.get_db)
 ):
     file = db.query(models.File).join(models.Project).filter(
-        models.File.id == file_id,
-        models.Project.user_id == current_user.id
+        models.File.file_id == file_id,
+        models.Project.user_id == current_user.user_id
     ).first()
     if not file:
         raise HTTPException(status_code=404, detail="File not found")
