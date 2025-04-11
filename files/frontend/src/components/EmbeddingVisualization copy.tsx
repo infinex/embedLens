@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState, useRef } from 'react';
-import Scatterplot from 'deepscatter';
+import { Scatterplot } from 'deepscatter';
 import { Select, Radio, Spin, Button, Progress, Alert } from 'antd';
 import { DownloadOutlined } from '@ant-design/icons';
 import { useParams } from 'react-router-dom';

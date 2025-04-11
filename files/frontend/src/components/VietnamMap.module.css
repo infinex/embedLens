@@ -1,0 +1,113 @@
+/* VietnamScatterplot.module.css */
+
+/* Styles from <head> */
+.tooltip { /* Renamed from .ttooltip for clarity */
+    z-index: 99;
+    min-width: 500px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    /* Note: These tooltip styles might be applied by deepscatter internally */
+  }
+  
+  .definitionList { /* Class for the dl element if needed */
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  
+  .definitionTerm { /* Class for the dt element if needed */
+    font-weight: bold;
+    color: rgb(128, 19, 0);
+  }
+  
+  .definitionTerm::after {
+    content: ':';
+  }
+  
+  .definitionDescription { /* Class for the dd element if needed */
+    margin: 0 0 0 10px;
+    padding: 0 0 0.5em 0;
+    width: 180px;
+  }
+  
+  .dateInput { /* Class for the date input range slider */
+    width: 100%;
+    margin-bottom: 10px; /* Added some spacing */
+  }
+  
+  .dateString { /* Class for the div showing the date string */
+    margin-bottom: 5px; /* Added some spacing */
+    min-height: 1.2em; /* Prevent layout shift */
+  }
+  
+  /* Styles from end of <body> */
+  .deepscatterContainer {
+    position: relative;
+    width: 100%; /* Ensure it takes space */
+    height: 600px; /* Give it a default height or manage dynamically */
+    border: 1px solid #555; /* Optional: visualize container */
+  }
+  
+  .overlay {
+    position: absolute;
+    top: 10px; /* Adjusted positioning */
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 99;
+    padding: 5px;
+    border-radius: 3px;
+    color: white; /* Make text visible */
+    max-height: calc(100% - 20px); /* Limit height */
+    overflow-y: auto; /* Allow scrolling if needed */
+  }
+  
+  .leftOverlay {
+    composes: overlay;
+    left: 10px;
+    display: flex;
+    flex-direction: column; /* Stack buttons vertically */
+  }
+  
+  .colorLegend {
+    composes: overlay;
+    right: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Align items to the start (left) */
+  }
+  
+  .legendDiv {
+    margin: 2px 0; /* Adjusted margin */
+    padding: 3px 8px;
+    font-size: 0.8em;
+    border-radius: 2px;
+    color: black; /* Default text color, background will override */
+    text-shadow: 0 0 2px white; /* Improve readability */
+  }
+  
+  .overlay button { /* Style buttons within overlays */
+    margin: 2px 0;
+    padding: 4px 8px;
+    cursor: pointer;
+    background-color: #ddd;
+    border: 1px solid #aaa;
+    border-radius: 3px;
+    text-align: left;
+  }
+  
+  .overlay button:hover {
+    background-color: #eee;
+  }
+  
+  .clickedData { /* Style for the clicked data display */
+    margin-top: 15px;
+    padding: 10px;
+    background-color: #223344;
+    border: 1px solid #445566;
+    border-radius: 4px;
+    max-height: 200px;
+    overflow: auto;
+    white-space: pre-wrap; /* Keep formatting */
+    font-family: monospace;
+    font-size: 0.9em;
+  }
