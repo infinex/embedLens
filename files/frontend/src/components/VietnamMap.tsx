@@ -39,6 +39,8 @@ interface LegendItem {
 const VietnamScatterplot: React.FC = () => {
   const scatterContainerRef = useRef<HTMLDivElement>(null);
   const scatterplotRef = useRef<DeepScatterInstance | null>(null);
+  const chartParentId = 'deep-scatter-parent-element-id';
+
   const [dateString, setDateString] = useState<string>('');
   const [sliderValue, setSliderValue] = useState<number>(0); // Initial slider value (adjust as needed)
   const [legendItems, setLegendItems] = useState<LegendItem[]>([]);
@@ -106,6 +108,8 @@ const VietnamScatterplot: React.FC = () => {
       // Already initialized or container not ready
       return;
     }
+    
+    const scatterplot = new Scatterplot(`#${chartParentId}`);
 
     // Define prefs inside useEffect or make constant outside if truly static
     const prefs = {
@@ -144,9 +148,9 @@ const VietnamScatterplot: React.FC = () => {
     };
 
     // Explicitly cast to 'any' if necessary due to lack of types
-    const scatterplot = new (Scatterplot as any)(
-        scatterContainerRef.current
-      ) as DeepScatterInstance;
+    // const scatterplot = new (Scatterplot as any)(
+    //     scatterContainerRef.current
+    //   ) as DeepScatterInstance;
     scatterplotRef.current = scatterplot;
 
     console.log('Initializing DeepScatter...');
@@ -287,7 +291,7 @@ const VietnamScatterplot: React.FC = () => {
         onChange={handleSliderChange}
       />
 
-      <div ref={scatterContainerRef} className={styles.deepscatterContainer}>
+      <div ref={scatterContainerRef} id={chartParentId} className={styles.deepscatterContainer}>
         {/* Overlays are positioned absolutely relative to this container */}
         <div className={styles.leftOverlay}>
           <strong>Color By:</strong>

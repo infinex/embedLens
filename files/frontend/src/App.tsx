@@ -12,9 +12,9 @@ const App: React.FC = () => {
     <Layout>
       <Content style={{ padding: '24px', minHeight: '100vh' }}>
         <Routes>
-          {/* <Route path="/embeddings/:embeddingId" element={<EmbeddingVisualization />} /> */}
+          <Route path="/embeddings/:embeddingId" element={<EmbeddingVisualization />} />
         </Routes>
-        <VietnamMap />
+        {/* <VietnamMap /> */}
       </Content>
     </Layout>
   );

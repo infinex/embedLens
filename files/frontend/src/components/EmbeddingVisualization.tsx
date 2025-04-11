@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState, useRef } from 'react';
-import Scatterplot from 'deepscatter';
+import { Scatterplot } from 'deepscatter';
 import { Select, Radio, Spin, Button, Progress, Alert } from 'antd';
 import { DownloadOutlined } from '@ant-design/icons';
 import { useParams } from 'react-router-dom';
@@ -34,6 +34,8 @@ interface ProgressInfo {
 
 const EmbeddingVisualization: React.FC = () => {
   const { embeddingId } = useParams<{ embeddingId: string }>();
+  const chartParentId = 'deep-scatter-parent-element-id';
+
   const [visualizations, setVisualizations] = useState<Visualization[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedMethod, setSelectedMethod] = useState<string>('umap');
@@ -143,7 +145,7 @@ const EmbeddingVisualization: React.FC = () => {
             plotRef.current.removeChild(plotRef.current.firstChild);
           }
           console.log("Target container:", plotRef.current);
-          plotInstance = new Scatterplot(plotRef.current);
+          plotInstance = new Scatterplot(`#${chartParentId}`);
           console.log('Scatterplot instance created.');
           
           if (isMountedRef.current) {
@@ -192,7 +194,7 @@ const EmbeddingVisualization: React.FC = () => {
               ...(dimensions === 3 && {
                 z: { field: 'z', transform: 'literal' },
               }),
-              color: { field: 'cluster', range: 'category10' },
+              color: { field: 'cluster', range: 'Cool' },
             },
             arrow_table: table,
             width: plotRef.current.offsetWidth || 800,
@@ -435,6 +437,7 @@ const EmbeddingVisualization: React.FC = () => {
       <div
         className="scatter-plot-container"
         ref={plotRef}
+        id={chartParentId}
         style={{
           width: '100%',
           height: '600px',
