@@ -42,14 +42,17 @@ def process_file(file_id: int):
         return
 
     try:
-        file_path = Path("uploads") / file.filename
+        # Get all rows for this file
+        file_rows = db.query(models.FileRow).filter(
+            models.FileRow.file_id == file_id
+        ).order_by(models.FileRow.row_index).all()
         
-        if file.file_type == "csv":
-            df = pd.read_csv(file_path)
-        elif file.file_type == "parquet":
-            df = pd.read_parquet(file_path)
-        else:
-            raise ValueError(f"Unsupported file type: {file.file_type}")
+        if not file_rows:
+            raise ValueError("No rows found for file")
+            
+        # Convert row data to DataFrame
+        rows_data = [row.row_data for row in file_rows]
+        df = pd.DataFrame(rows_data)
 
         # Extract column information
         columns = {
@@ -112,7 +115,7 @@ async def generate_embeddings(embedding_id: int, columns: List[str], model_name:
         embedding.status = "processing"
         db.commit()
 
-        # Load data
+        # Load data from FileRows
         progress_tracker.update_progress(
             str(embedding_id),
             status="processing",
@@ -121,12 +124,16 @@ async def generate_embeddings(embedding_id: int, columns: List[str], model_name:
         )
 
         file = embedding.file
-        file_path = Path("uploads") / file.filename
+        file_rows = db.query(models.FileRow).filter(
+            models.FileRow.file_id == file.file_id
+        ).order_by(models.FileRow.row_index).all()
 
-        if file.file_type == "csv":
-            df = pd.read_csv(file_path)
-        else:
-            df = pd.read_parquet(file_path)
+        if not file_rows:
+            raise ValueError("No rows found for file")
+
+        # Convert row data to DataFrame
+        rows_data = [row.row_data for row in file_rows]
+        df = pd.DataFrame(rows_data)
 
         # Prepare text
         progress_tracker.update_progress(

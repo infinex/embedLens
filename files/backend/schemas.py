@@ -39,11 +39,33 @@ class File(FileBase):
     file_id: int
     original_filename: str
     project_id: int
-    columns: Optional[Dict[str, Any]]
+    columns: Optional[List[str]]
+    created_at: datetime
+    row_count: int
+
+    class Config:
+        orm_mode = True
+
+from pydantic import BaseModel
+from datetime import datetime
+from typing import Optional, Dict, Any
+
+class FileRowBase(BaseModel):
+    row_index: int
+    row_data: Dict[str, Any]
+
+class FileRowCreate(FileRowBase):
+    file_id: int
+
+class FileRow(FileRowBase):
+    row_id: int
+    file_id: int
     created_at: datetime
 
     class Config:
         orm_mode = True
+
+
 
 class EmbeddingBase(BaseModel):
     model_name: str
