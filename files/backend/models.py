@@ -84,8 +84,8 @@ class Visualization(Base):
 
     method = Column(String)  # umap, tsne, pca
     dimensions = Column(Integer)  # 2 or 3
-    coordinate = Column(JSON)  # Store reduced coordinates
-    cluster = Column(JSON, nullable=True)  # Optional clustering information
+    coordinates = Column(JSON)  # Store reduced coordinates (renamed from 'coordinate')
+    clusters = Column(JSON, nullable=True)  # Optional clustering information (renamed from 'cluster')
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     embedding = relationship("Embedding", back_populates="visualizations", uselist=False)
