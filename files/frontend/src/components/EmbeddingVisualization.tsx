@@ -31,11 +31,15 @@ interface Point {
 }
 
 interface VisualizationData {
-  id: number; // Assuming the first visualization's ID is used for export
   method: string;
   dimensions: number;
-  coordinates: number[][];
-  clusters: number[];
+  visualization_id: number;
+  embedding_id: number;
+  file_id: number;
+  row_id: number;
+  coordinates: number[];
+  clusters: number;
+  created_at: string;
 }
 
 interface ProgressInfo {
@@ -55,15 +59,16 @@ interface HoveredPoint extends Point {
 }
 
 // --- Helper Functions ---
-const transformVisualizationToPoints = (vis: VisualizationData): Point[] => {
-  if (!vis || !vis.coordinates || !vis.clusters) {
+const transformVisualizationToPoints = (vis: VisualizationData[]): Point[] => {
+  if (!vis || !Array.isArray(vis)) {
     return [];
   }
-  return vis.coordinates.map((coord, index) => ({
-    x: coord[0],
-    y: coord[1],
-    ...(coord.length > 2 && { z: coord[2] }), // Conditionally add z
-    cluster: vis.clusters[index],
+  
+  return vis.map(item => ({
+    x: item.coordinates[0],
+    y: item.coordinates[1],
+    ...(item.coordinates.length > 2 && { z: item.coordinates[2] }),
+    cluster: item.clusters
   }));
 };
 
@@ -74,7 +79,7 @@ const EmbeddingVisualization: React.FC = () => {
 
   // --- State ---
   const [hoveredPoint, setHoveredPoint] = useState<HoveredPoint | null>(null);
-  const [visualizationData, setVisualizationData] = useState<VisualizationData | null>(null);
+  const [visualizationData, setVisualizationData] = useState<VisualizationData[]>([]);
   const [points, setPoints] = useState<Point[]>([]);
   const [filteredPoints, setFilteredPoints] = useState<Point[]>([]);
   const [uniqueClusters, setUniqueClusters] = useState<number[]>([]);
@@ -101,12 +106,12 @@ const EmbeddingVisualization: React.FC = () => {
   }, [points]);
 
   const handleExport = useCallback(async (format: 'csv' | 'json') => {
-    if (!visualizationData?.id) {
+    if (!visualizationData?.visualization_id) {
       setError("Cannot export: No visualization data available or visualization ID missing.");
       return;
     }
     setError(null); // Clear previous errors
-    const vizId = visualizationData.id;
+    const vizId = visualizationData.visualization_id;
     const token = localStorage.getItem('token');
     const url = `/api/visualizations/${vizId}/export?format=${format}`;
 
@@ -234,7 +239,7 @@ const EmbeddingVisualization: React.FC = () => {
       const token = localStorage.getItem('token');
       try {
         const response = await fetch(
-          `/api/visualizations/visualizations/${embeddingId}?method=${selectedMethod}&dimensions=${selectedDimensions}`,
+          `/api/visualizations/file/${embeddingId}?method=${selectedMethod}&dimensions=${selectedDimensions}`,
           {
             signal,
             headers: { Authorization: `Bearer ${token}` },
@@ -242,7 +247,7 @@ const EmbeddingVisualization: React.FC = () => {
         );
 
         if (!response.ok) {
-          throw new Error(`Failed to fetch visualization: ${response.status} ${response.statusText}`);
+          throw new Error(`Failed to fetch visualization: ${response.status} ${response.statusText}`); 
         }
 
         const data: VisualizationData[] = await response.json();
@@ -250,7 +255,7 @@ const EmbeddingVisualization: React.FC = () => {
         if (signal.aborted) return;
 
         if (data.length > 0) {
-          const vis = data[0];
+          const vis = data;
           setVisualizationData(vis); // Store the raw visualization data
           const transformedPoints = transformVisualizationToPoints(vis);
           setPoints(transformedPoints);
@@ -287,18 +292,19 @@ const EmbeddingVisualization: React.FC = () => {
       abortController.abort();
     };
   }, [embeddingId, selectedMethod, selectedDimensions, isProcessing]); // Re-fetch if params change or processing finishes
-// New tooltip handler function
-const handleTooltip = (point: Point): string => {
-  setHoveredPoint(point);
-  
-  return `<div class="minimal-tooltip">Cluster ${point.cluster}</div>`;
-};
 
-// New click handler function
-const handlePointClick = (point: Point) => {
-  console.log('Point clicked:', point);
-  // You could implement custom behavior on click, like showing details in a sidebar
-};
+  // New tooltip handler function
+  const handleTooltip = (point: Point): string => {
+    setHoveredPoint(point);
+    
+    return `<div class="minimal-tooltip">Cluster ${point.cluster}</div>`;
+  };
+
+  // New click handler function
+  const handlePointClick = (point: Point) => {
+    console.log('Point clicked:', point);
+    // You could implement custom behavior on click, like showing details in a sidebar
+  };
 
   // Effect: Initialize and Update Scatterplot
   useEffect(() => {
@@ -460,17 +466,31 @@ const handlePointClick = (point: Point) => {
     // Main content: Controls + Plot
     return (
       <>
-        <div style={{ display: 'flex', gap: '20px' }}>
-                    <div 
-            className="point-details-sidebar" 
+        <div style={{ display: 'flex', gap: '20px', flex: 1 }}> {/* Adjusted to flex: 1 to fill parent */}
+          <div
+            id={CHART_PARENT_ID}
+            ref={plotContainerRef}
             style={{
-              width: '250px',
+              width: '750px', // Consider making this more dynamic or a higher percentage
               height: '600px',
               border: '1px solid #ddd',
               borderRadius: '4px',
-              padding: '15px',
-              background: '#fff',
-              overflow: 'auto'
+              overflow: 'hidden',
+              position: 'relative',
+              background: '#f9f9f9'
+            }}
+          />
+          <div
+            className="point-details-sidebar"
+            style={{
+              width: '280px', // Increased width slightly
+              height: '600px', // Match plot height
+              border: '1px solid #ccc', // Darker border
+              borderRadius: '4px',
+              padding: '20px', // Increased padding
+              background: '#f0f2f5', // More distinct background color
+              overflow: 'auto',
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.09)' // Added a subtle shadow
             }}
           >
             {hoveredPoint ? (
@@ -510,19 +530,6 @@ const handlePointClick = (point: Point) => {
               </div>
             )}
           </div>
-          <div
-            id={CHART_PARENT_ID}
-            ref={plotContainerRef}
-            style={{
-              width: '750px',
-              height: '600px',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-              overflow: 'hidden',
-              position: 'relative',
-              background: '#f9f9f9'
-            }}
-          />
           
 
         </div>
@@ -537,61 +544,90 @@ const handlePointClick = (point: Point) => {
              <Alert message="Error" description={error} type="error" showIcon style={{ marginBottom: '15px' }} closable onClose={() => setError(null)}/>
         )}
 
-       {/* Controls always visible unless processing */}
+      <div style={{ display: 'flex', gap: '20px' }}> {/* Main Flex Container for Sidebar + Content */}
+        {/* Controls Sidebar - visible only when not processing */}
         {!isProcessing && (
-           <Space direction="vertical" style={{ width: '100%', marginBottom: '15px' }}>
-             <Space wrap>
-                 <Radio.Group
-                    options={METHODS}
-                    onChange={(e) => setSelectedMethod(e.target.value)}
-                    value={selectedMethod}
-                    optionType="button"
-                    buttonStyle="solid"
-                    disabled={isLoadingData}
-                 />
-                 <Radio.Group
-                    options={DIMENSIONS}
-                    onChange={(e) => setSelectedDimensions(e.target.value)}
-                    value={selectedDimensions}
-                    optionType="button"
-                    buttonStyle="solid"
-                    disabled={isLoadingData}
-                 />
-                 <Select
-                    mode="multiple"
-                    allowClear
-                    placeholder="Filter Clusters"
-                    style={{ minWidth: '200px' }}
-                    onChange={handleFilterChange}
-                    options={uniqueClusters.map((cluster) => ({
-                        label: `Cluster ${cluster}`,
-                        value: cluster,
-                    }))}
-                    disabled={isLoadingData || points.length === 0}
-                    loading={isLoadingData} // Show loading indicator in select if data is loading
-                 />
-                 <Button
-                    icon={<DownloadOutlined />}
-                    onClick={() => handleExport('csv')}
-                    disabled={isLoadingData || !visualizationData}
-                 >
-                    Export CSV
-                 </Button>
-                 <Button
-                    icon={<DownloadOutlined />}
-                    onClick={() => handleExport('json')}
-                    disabled={isLoadingData || !visualizationData}
-                 >
-                    Export JSON
-                 </Button>
-             </Space>
-           </Space>
+          <div 
+            className="controls-sidebar" 
+            style={{ 
+              width: '280px', // Fixed width for the sidebar
+              padding: '15px',
+              border: '1px solid #ddd',
+              borderRadius: '4px',
+              background: '#fdfdfd', // Slightly different background
+              height: 'fit-content' // Adjust height to content
+            }}
+          >
+            <Typography.Title level={4} style={{ marginTop: 0, marginBottom: '20px' }}>Controls</Typography.Title>
+            <Space direction="vertical" style={{ width: '100%'}}>
+              <Space direction="vertical" style={{ width: '100%'}}>
+                <Text strong>Method:</Text>
+                <Radio.Group
+                  options={METHODS}
+                  onChange={(e) => setSelectedMethod(e.target.value)}
+                  value={selectedMethod}
+                  optionType="button"
+                  buttonStyle="solid"
+                  disabled={isLoadingData}
+                  style={{ width: '100%' }}
+                />
+              </Space>
+              <Space direction="vertical" style={{ width: '100%'}}>
+                <Text strong>Dimensions:</Text>
+                <Radio.Group
+                  options={DIMENSIONS}
+                  onChange={(e) => setSelectedDimensions(e.target.value)}
+                  value={selectedDimensions}
+                  optionType="button"
+                  buttonStyle="solid"
+                  disabled={isLoadingData}
+                  style={{ width: '100%' }}
+                />
+              </Space>
+              <Space direction="vertical" style={{ width: '100%'}}>
+                <Text strong>Filter Clusters:</Text>
+                <Select
+                  mode="multiple"
+                  allowClear
+                  placeholder="All Clusters"
+                  style={{ width: '100%' }}
+                  onChange={handleFilterChange}
+                  options={uniqueClusters.map((cluster) => ({
+                      label: `Cluster ${cluster}`,
+                      value: cluster,
+                  }))}
+                  disabled={isLoadingData || points.length === 0}
+                  loading={isLoadingData}
+                />
+              </Space>
+              <Space direction="vertical" style={{ width: '100%'}}>
+                <Text strong>Export Data:</Text>
+                <Button
+                  icon={<DownloadOutlined />}
+                  onClick={() => handleExport('csv')}
+                  disabled={isLoadingData || !visualizationData || visualizationData.length === 0}
+                  style={{ width: '100%', marginTop: '5px' }}
+                >
+                  Export CSV
+                </Button>
+                <Button
+                  icon={<DownloadOutlined />}
+                  onClick={() => handleExport('json')}
+                  disabled={isLoadingData || !visualizationData || visualizationData.length === 0}
+                  style={{ width: '100%', marginTop: '5px' }}
+                >
+                  Export JSON
+                </Button>
+              </Space>
+            </Space>
+          </div>
         )}
 
-
-      {/* Display Area: Progress, Loading, No Data, or Plot */}
-      {isProcessing ? renderProgress() : renderContent()}
-
+        {/* Main Content Area (Plot / Progress / Loading / Error) */}
+        <div className="main-content-area" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+          {isProcessing ? renderProgress() : renderContent()}
+        </div>
+      </div>
     </div>
   );
 };

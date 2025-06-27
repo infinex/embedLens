@@ -1,0 +1,8 @@
+Use Fetch rather than axios
+add in headers 
+```
+const token = localStorage.getItem('token');
+headers: { Authorization: `Bearer ${token}` },
+
+```
+make use of antd and any other package.json package, ask explictly for permission to use new packages. Use the existing package.json.

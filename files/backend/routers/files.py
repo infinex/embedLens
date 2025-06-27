@@ -6,6 +6,7 @@ import pandas as pd
 import uuid
 import os
 from pathlib import Path
+import numpy as np
 
 import models, schemas, database, auth, tasks
 
@@ -72,9 +73,16 @@ async def upload_file(
         original_filename=file.filename,
         file_type=file_extension.lstrip('.'),
         project_id=project_id,
-        columns=df.columns.tolist(),
+        columns={
+            "names": df.columns.tolist(),
+            "types": df.dtypes.astype(str).to_dict(),
+            "sample_size": len(df),
+            "numeric_columns": df.select_dtypes(include=[np.number]).columns.tolist(),
+            "text_columns": df.select_dtypes(include=['object', 'string']).columns.tolist() # Added 'string'
+        },
         row_count=len(df)
     )
+    # Add file record to the database
     db.add(db_file)
     db.commit()
     db.refresh(db_file)
@@ -144,7 +152,6 @@ async def list_files(
     ).first()
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
-
     return db.query(models.File).filter(models.File.project_id == project_id).all()
 
 @router.get("/{file_id}/columns")

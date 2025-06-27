@@ -15,6 +15,20 @@ services:
     ports:
       - "6379:6379"
 
+
+  pgadmin:
+    image: dpage/pgadmin4 # Using the official pgAdmin 4 image
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com # Replace with your desired login email
+      PGADMIN_DEFAULT_PASSWORD: password      # Replace with a strong password
+      PGADMIN_LISTEN_PORT: 80                 # pgAdmin's default web port
+    ports:
+      - "8080:80" # Map host port 8080 to pgAdmin's container port 80
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin # Persistent storage for pgAdmin configuration
+    depends_on:
+      - postgres # Ensure postgres starts before pgadmin
+
   worker:
     build:
       context: ./backend
@@ -28,7 +42,13 @@ services:
     volumes:
       - ./backend:/app
     restart: always
-
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
 
   backend:
     build:
@@ -43,7 +63,13 @@ services:
     depends_on:
       - postgres
       - redis
-
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
   frontend:
     build:
       context: ./frontend
@@ -59,3 +85,4 @@ services:
 
 volumes:
   postgres_data:
+  pgadmin_data:

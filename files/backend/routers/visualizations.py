@@ -56,7 +56,7 @@ async def get_visualizations_for_file(
     ).order_by(models.Visualization.row_id) # Order by row_id for consistency
 
     visualizations = query.all()
-
+    print(f"visualizations: {visualizations[0].__dict__}") # Debugging line
     if not visualizations:
         logger.warning(f"No visualizations found for file {file_id}, method={method}, dims={dimensions}")
         # Return empty list instead of 404, as the file exists but visualization might not

@@ -1,0 +1,1946 @@
+# Project Structure
+
+```
+├── auth_service
+│   ├── auth_service.py
+│   ├── Dockerfile
+│   └── requirements.txt
+├── backend_service
+│   ├── Dockerfile
+│   ├── main.py
+│   └── requirements.txt
+├── bolt
+│   └── ottodev
+│       ├── app
+│       │   ├── components
+│       │   │   ├── @settings
+│       │   │   │   ├── core
+│       │   │   │   ├── shared
+│       │   │   │   ├── tabs
+│       │   │   │   ├── utils
+│       │   │   │   └── index.ts
+│       │   │   ├── chat
+│       │   │   │   ├── chatExportAndImport
+│       │   │   │   ├── APIKeyManager.tsx
+│       │   │   │   ├── Artifact.tsx
+│       │   │   │   ├── AssistantMessage.tsx
+│       │   │   │   ├── BaseChat.module.scss
+│       │   │   │   ├── BaseChat.tsx
+│       │   │   │   ├── Chat.client.tsx
+│       │   │   │   ├── ChatAlert.tsx
+│       │   │   │   ├── CodeBlock.module.scss
+│       │   │   │   ├── CodeBlock.tsx
+│       │   │   │   ├── ExamplePrompts.tsx
+│       │   │   │   ├── FilePreview.tsx
+│       │   │   │   ├── GitCloneButton.tsx
+│       │   │   │   ├── ImportFolderButton.tsx
+│       │   │   │   ├── Markdown.module.scss
+│       │   │   │   ├── Markdown.spec.ts
+│       │   │   │   ├── Markdown.tsx
+│       │   │   │   ├── Messages.client.tsx
+│       │   │   │   ├── ModelSelector.tsx
+│       │   │   │   ├── NetlifyDeploymentLink.client.tsx
+│       │   │   │   ├── ProgressCompilation.tsx
+│       │   │   │   ├── ScreenshotStateManager.tsx
+│       │   │   │   ├── SendButton.client.tsx
+│       │   │   │   ├── SpeechRecognition.tsx
+│       │   │   │   ├── StarterTemplates.tsx
+│       │   │   │   ├── ThoughtBox.tsx
+│       │   │   │   └── UserMessage.tsx
+│       │   │   ├── editor
+│       │   │   │   └── codemirror
+│       │   │   ├── git
+│       │   │   │   └── GitUrlImport.client.tsx
+│       │   │   ├── header
+│       │   │   │   ├── Header.tsx
+│       │   │   │   └── HeaderActionButtons.client.tsx
+│       │   │   ├── sidebar
+│       │   │   │   ├── date-binning.ts
+│       │   │   │   ├── HistoryItem.tsx
+│       │   │   │   └── Menu.client.tsx
+│       │   │   ├── ui
+│       │   │   │   ├── BackgroundRays
+│       │   │   │   ├── Badge.tsx
+│       │   │   │   ├── Button.tsx
+│       │   │   │   ├── Card.tsx
+│       │   │   │   ├── Collapsible.tsx
+│       │   │   │   ├── Dialog.tsx
+│       │   │   │   ├── Dropdown.tsx
+│       │   │   │   ├── IconButton.tsx
+│       │   │   │   ├── Input.tsx
+│       │   │   │   ├── Label.tsx
+│       │   │   │   ├── LoadingDots.tsx
+│       │   │   │   ├── LoadingOverlay.tsx
+│       │   │   │   ├── PanelHeader.tsx
+│       │   │   │   ├── PanelHeaderButton.tsx
+│       │   │   │   ├── Popover.tsx
+│       │   │   │   ├── Progress.tsx
+│       │   │   │   ├── ScrollArea.tsx
+│       │   │   │   ├── Separator.tsx
+│       │   │   │   ├── SettingsButton.tsx
+│       │   │   │   ├── Slider.tsx
+│       │   │   │   ├── Switch.tsx
+│       │   │   │   ├── Tabs.tsx
+│       │   │   │   ├── ThemeSwitch.tsx
+│       │   │   │   ├── Tooltip.tsx
+│       │   │   │   └── use-toast.ts
+│       │   │   └── workbench
+│       │   │       ├── terminal
+│       │   │       ├── DiffView.tsx
+│       │   │       ├── EditorPanel.tsx
+│       │   │       ├── FileBreadcrumb.tsx
+│       │   │       ├── FileTree.tsx
+│       │   │       ├── PortDropdown.tsx
+│       │   │       ├── Preview.tsx
+│       │   │       ├── ScreenshotSelector.tsx
+│       │   │       └── Workbench.client.tsx
+│       │   ├── lib
+│       │   │   ├── api
+│       │   │   │   ├── connection.ts
+│       │   │   │   ├── cookies.ts
+│       │   │   │   ├── debug.ts
+│       │   │   │   ├── features.ts
+│       │   │   │   ├── notifications.ts
+│       │   │   │   └── updates.ts
+│       │   │   ├── common
+│       │   │   │   ├── prompts
+│       │   │   │   └── prompt-library.ts
+│       │   │   ├── hooks
+│       │   │   │   ├── index.ts
+│       │   │   │   ├── useConnectionStatus.ts
+│       │   │   │   ├── useDebugStatus.ts
+│       │   │   │   ├── useEditChatDescription.ts
+│       │   │   │   ├── useFeatures.ts
+│       │   │   │   ├── useGit.ts
+│       │   │   │   ├── useLocalProviders.ts
+│       │   │   │   ├── useMessageParser.ts
+│       │   │   │   ├── useNotifications.ts
+│       │   │   │   ├── usePromptEnhancer.ts
+│       │   │   │   ├── useSearchFilter.ts
+│       │   │   │   ├── useSettings.ts
+│       │   │   │   ├── useShortcuts.ts
+│       │   │   │   ├── useSnapScroll.ts
+│       │   │   │   ├── useUpdateCheck.ts
+│       │   │   │   └── useViewport.ts
+│       │   │   ├── modules
+│       │   │   │   └── llm
+│       │   │   ├── persistence
+│       │   │   │   ├── ChatDescription.client.tsx
+│       │   │   │   ├── db.ts
+│       │   │   │   ├── index.ts
+│       │   │   │   ├── localStorage.ts
+│       │   │   │   ├── types.ts
+│       │   │   │   └── useChatHistory.ts
+│       │   │   ├── runtime
+│       │   │   │   ├── __snapshots__
+│       │   │   │   ├── action-runner.ts
+│       │   │   │   ├── message-parser.spec.ts
+│       │   │   │   └── message-parser.ts
+│       │   │   ├── stores
+│       │   │   │   ├── chat.ts
+│       │   │   │   ├── editor.ts
+│       │   │   │   ├── files.ts
+│       │   │   │   ├── logs.ts
+│       │   │   │   ├── netlify.ts
+│       │   │   │   ├── previews.ts
+│       │   │   │   ├── profile.ts
+│       │   │   │   ├── settings.ts
+│       │   │   │   ├── streaming.ts
+│       │   │   │   ├── tabConfigurationStore.ts
+│       │   │   │   ├── terminal.ts
+│       │   │   │   ├── theme.ts
+│       │   │   │   └── workbench.ts
+│       │   │   ├── webcontainer
+│       │   │   │   ├── auth.client.ts
+│       │   │   │   └── index.ts
+│       │   │   ├── crypto.ts
+│       │   │   └── fetch.ts
+│       │   ├── routes
+│       │   │   ├── _index.tsx
+│       │   │   ├── api.chat.ts
+│       │   │   ├── api.check-env-key.ts
+│       │   │   ├── api.deploy.ts
+│       │   │   ├── api.enhancer.ts
+│       │   │   ├── api.git-proxy.$.ts
+│       │   │   ├── api.health.ts
+│       │   │   ├── api.llmcall.ts
+│       │   │   ├── api.models.$provider.ts
+│       │   │   ├── api.models.ts
+│       │   │   ├── api.system.app-info.ts
+│       │   │   ├── api.system.git-info.ts
+│       │   │   ├── api.update.ts
+│       │   │   ├── chat.$id.tsx
+│       │   │   ├── git.tsx
+│       │   │   └── webcontainer.preview.$id.tsx
+│       │   ├── styles
+│       │   │   ├── components
+│       │   │   │   ├── code.scss
+│       │   │   │   ├── editor.scss
+│       │   │   │   ├── resize-handle.scss
+│       │   │   │   ├── terminal.scss
+│       │   │   │   └── toast.scss
+│       │   │   ├── animations.scss
+│       │   │   ├── diff-view.css
+│       │   │   ├── index.scss
+│       │   │   ├── variables.scss
+│       │   │   └── z-index.scss
+│       │   ├── types
+│       │   │   ├── actions.ts
+│       │   │   ├── artifact.ts
+│       │   │   ├── context.ts
+│       │   │   ├── GitHub.ts
+│       │   │   ├── global.d.ts
+│       │   │   ├── model.ts
+│       │   │   ├── netlify.ts
+│       │   │   ├── template.ts
+│       │   │   ├── terminal.ts
+│       │   │   └── theme.ts
+│       │   ├── utils
+│       │   │   ├── buffer.ts
+│       │   │   ├── classNames.ts
+│       │   │   ├── constants.ts
+│       │   │   ├── debounce.ts
+│       │   │   ├── diff.spec.ts
+│       │   │   ├── diff.ts
+│       │   │   ├── easings.ts
+│       │   │   ├── fileUtils.ts
+│       │   │   ├── folderImport.ts
+│       │   │   ├── formatSize.ts
+│       │   │   ├── getLanguageFromExtension.ts
+│       │   │   ├── logger.ts
+│       │   │   ├── markdown.ts
+│       │   │   ├── mobile.ts
+│       │   │   ├── os.ts
+│       │   │   ├── path.ts
+│       │   │   ├── projectCommands.ts
+│       │   │   ├── promises.ts
+│       │   │   ├── react.ts
+│       │   │   ├── sampler.ts
+│       │   │   ├── selectStarterTemplate.ts
+│       │   │   ├── shell.ts
+│       │   │   ├── stacktrace.ts
+│       │   │   ├── stripIndent.ts
+│       │   │   ├── terminal.ts
+│       │   │   ├── types.ts
+│       │   │   └── unreachable.ts
+│       │   ├── entry.client.tsx
+│       │   ├── entry.server.tsx
+│       │   ├── root.tsx
+│       │   └── vite-env.d.ts
+│       ├── assets
+│       │   ├── icons
+│       │   │   ├── icon.icns
+│       │   │   ├── icon.ico
+│       │   │   └── icon.png
+│       │   └── entitlements.mac.plist
+│       ├── docs
+│       │   ├── docs
+│       │   │   ├── CONTRIBUTING.md
+│       │   │   ├── FAQ.md
+│       │   │   └── index.md
+│       │   ├── images
+│       │   │   ├── api-key-ui-section.png
+│       │   │   ├── bolt-settings-button.png
+│       │   │   └── provider-base-url.png
+│       │   ├── mkdocs.yml
+│       │   ├── poetry.lock
+│       │   ├── pyproject.toml
+│       │   └── README.md
+│       ├── electron
+│       │   ├── main
+│       │   │   ├── ui
+│       │   │   │   ├── menu.ts
+│       │   │   │   └── window.ts
+│       │   │   ├── utils
+│       │   │   │   ├── auto-update.ts
+│       │   │   │   ├── constants.ts
+│       │   │   │   ├── cookie.ts
+│       │   │   │   ├── reload.ts
+│       │   │   │   ├── serve.ts
+│       │   │   │   ├── store.ts
+│       │   │   │   └── vite-server.ts
+│       │   │   ├── index.ts
+│       │   │   ├── tsconfig.json
+│       │   │   └── vite.config.ts
+│       │   └── preload
+│       │       ├── index.ts
+│       │       ├── tsconfig.json
+│       │       └── vite.config.ts
+│       ├── functions
+│       │   └── [[path]].ts
+│       ├── icons
+│       │   ├── angular.svg
+│       │   ├── astro.svg
+│       │   ├── chat.svg
+│       │   ├── logo-text.svg
+│       │   ├── logo.svg
+│       │   ├── nativescript.svg
+│       │   ├── nextjs.svg
+│       │   ├── nuxt.svg
+│       │   ├── qwik.svg
+│       │   ├── react.svg
+│       │   ├── remix.svg
+│       │   ├── remotion.svg
+│       │   ├── slidev.svg
+│       │   ├── stars.svg
+│       │   ├── svelte.svg
+│       │   ├── typescript.svg
+│       │   ├── vite.svg
+│       │   └── vue.svg
+│       ├── public
+│       │   ├── icons
+│       │   │   ├── AmazonBedrock.svg
+│       │   │   ├── Anthropic.svg
+│       │   │   ├── Cohere.svg
+│       │   │   ├── Deepseek.svg
+│       │   │   ├── Default.svg
+│       │   │   ├── Google.svg
+│       │   │   ├── Groq.svg
+│       │   │   ├── HuggingFace.svg
+│       │   │   ├── Hyperbolic.svg
+│       │   │   ├── LMStudio.svg
+│       │   │   ├── Mistral.svg
+│       │   │   ├── Ollama.svg
+│       │   │   ├── OpenAI.svg
+│       │   │   ├── OpenAILike.svg
+│       │   │   ├── OpenRouter.svg
+│       │   │   ├── Perplexity.svg
+│       │   │   ├── Together.svg
+│       │   │   └── xAI.svg
+│       │   ├── apple-touch-icon-precomposed.png
+│       │   ├── apple-touch-icon.png
+│       │   ├── favicon.ico
+│       │   ├── favicon.svg
+│       │   ├── logo-dark-styled.png
+│       │   ├── logo-dark.png
+│       │   ├── logo-light-styled.png
+│       │   ├── logo-light.png
+│       │   ├── logo.svg
+│       │   └── social_preview_index.jpg
+│       ├── scripts
+│       │   ├── clean.js
+│       │   ├── update-imports.sh
+│       │   └── update.sh
+│       ├── types
+│       │   └── istextorbinary.d.ts
+│       ├── bindings.sh
+│       ├── changelog.md
+│       ├── CONTRIBUTING.md
+│       ├── docker-compose.yaml
+│       ├── Dockerfile
+│       ├── electron-builder.yml
+│       ├── electron-update.yml
+│       ├── eslint.config.mjs
+│       ├── FAQ.md
+│       ├── LICENSE
+│       ├── load-context.ts
+│       ├── notarize.cjs
+│       ├── package.json
+│       ├── pnpm-lock.yaml
+│       ├── pre-start.cjs
+│       ├── PROJECT.md
+│       ├── README.md
+│       ├── tsconfig.json
+│       ├── uno.config.ts
+│       ├── vite-electron.config.ts
+│       ├── vite.config.ts
+│       ├── worker-configuration.d.ts
+│       └── wrangler.toml
+├── files
+│   ├── backend
+│   │   ├── app
+│   │   │   ├── api
+│   │   │   │   (empty directory)
+│   │   │   ├── core
+│   │   │   │   (empty directory)
+│   │   │   └── db
+│   │   │       (empty directory)
+│   │   ├── routers
+│   │   │   ├── embeddings.py
+│   │   │   ├── files.py
+│   │   │   ├── projects.py
+│   │   │   └── visualizations.py
+│   │   ├── services
+│   │   │   ├── embeddings.py
+│   │   │   └── progress.py
+│   │   ├── tests
+│   │   │   └── test_visualizations.py
+│   │   ├── uploads
+│   │   │   ├── 0122619b-be61-4cb7-91cf-a6ccc56b69b8.csv
+│   │   │   ├── 245f2d34-0f5c-4c07-b6b5-47fae69a1240.csv
+│   │   │   ├── 302df1f9-ec16-46c2-9e8f-c1ee7b5bde90.csv
+│   │   │   ├── 421d3fc6-584c-4e04-8119-662df31058e0.csv
+│   │   │   ├── 44faf08d-1c33-47c2-9906-67d281d4e5b6.csv
+│   │   │   ├── 585272a1-24ab-4e60-ba05-12819c0fd78d.csv
+│   │   │   ├── 5f9299bf-4624-4f40-b333-d2d933cc37c1.csv
+│   │   │   ├── 738071bb-36c1-4af9-80e2-ca34cc4689ae.csv
+│   │   │   ├── 8d88998f-e44a-46b9-b0c1-5941e4b61f8d.csv
+│   │   │   ├── 91ca9591-e3da-46e6-9e3c-db0ca968149f.csv
+│   │   │   ├── a5562a52-8cbd-45b6-b775-1deaa793aeeb.csv
+│   │   │   ├── abd234f1-9117-4ed9-9995-0ee4a863003f.csv
+│   │   │   ├── af590e9d-d7b7-494a-b4eb-1fc8e87466ff.csv
+│   │   │   ├── c0c7efcb-1867-44cb-a3f8-3a45300e9efc.csv
+│   │   │   ├── cf9d490e-1535-4d83-9d65-fa7a172e21a2.csv
+│   │   │   ├── e4abda5d-6036-41b4-a29d-3372546ea383.csv
+│   │   │   ├── e68ffd5d-92b7-436f-9292-96e905834075.csv
+│   │   │   ├── efbd5749-4992-4fa1-a319-b5d79a1bd5f1.csv
+│   │   │   ├── efffc031-8635-4f48-9568-b78d28b07bfd.csv
+│   │   │   ├── f4967fc2-9e5b-4a25-b153-ee0b865d6147.csv
+│   │   │   └── f6a847fe-22bc-4ea6-adf5-46f1eeb246af.csv
+│   │   ├── auth.py
+│   │   ├── database.py
+│   │   ├── docker-compose.yaml
+│   │   ├── Dockerfile
+│   │   ├── Dockerfile.worker
+│   │   ├── main.py
+│   │   ├── models.py
+│   │   ├── requirements.txt
+│   │   ├── schemas.py
+│   │   ├── tasks.py
+│   │   └── worker.py
+│   ├── docker
+│   │   └── postgres
+│   │       ├── Dockerfile
+│   │       └── init.sql
+│   ├── files
+│   │   └── backend
+│   │       (empty directory)
+│   ├── frontend
+│   │   ├── deepscatter
+│   │   │   ├── dev
+│   │   │   │   ├── submodules
+│   │   │   │   │   └── LabelMaker.svelte
+│   │   │   │   ├── svelte
+│   │   │   │   │   ├── ColorChange.svelte
+│   │   │   │   │   ├── Filter.svelte
+│   │   │   │   │   ├── PositionScales.svelte
+│   │   │   │   │   ├── Scatterplot.svelte
+│   │   │   │   │   ├── SelectPoints.svelte
+│   │   │   │   │   ├── SizeSlider.svelte
+│   │   │   │   │   └── SwitchPositions.svelte
+│   │   │   │   ├── FourClasses.svelte
+│   │   │   │   ├── Main.svelte
+│   │   │   │   ├── main.ts
+│   │   │   │   └── SinglePoint.svelte
+│   │   │   ├── dist
+│   │   │   │   ├── aesthetics
+│   │   │   │   │   ├── Aesthetic.d.ts
+│   │   │   │   │   ├── Aesthetic.d.ts.map
+│   │   │   │   │   ├── AestheticSet.d.ts
+│   │   │   │   │   ├── AestheticSet.d.ts.map
+│   │   │   │   │   ├── BooleanAesthetic.d.ts
+│   │   │   │   │   ├── BooleanAesthetic.d.ts.map
+│   │   │   │   │   ├── ColorAesthetic.d.ts
+│   │   │   │   │   ├── ColorAesthetic.d.ts.map
+│   │   │   │   │   ├── ScaledAesthetic.d.ts
+│   │   │   │   │   ├── ScaledAesthetic.d.ts.map
+│   │   │   │   │   ├── StatefulAesthetic.d.ts
+│   │   │   │   │   └── StatefulAesthetic.d.ts.map
+│   │   │   │   ├── deepscatter.d.ts
+│   │   │   │   ├── deepscatter.d.ts.map
+│   │   │   │   ├── deepscatter.js
+│   │   │   │   ├── deepscatter.umd.cjs
+│   │   │   │   ├── Deeptable.d.ts
+│   │   │   │   ├── Deeptable.d.ts.map
+│   │   │   │   ├── defaults.d.ts
+│   │   │   │   ├── defaults.d.ts.map
+│   │   │   │   ├── interaction.d.ts
+│   │   │   │   ├── interaction.d.ts.map
+│   │   │   │   ├── label_rendering.d.ts
+│   │   │   │   ├── label_rendering.d.ts.map
+│   │   │   │   ├── regl_rendering.d.ts
+│   │   │   │   ├── regl_rendering.d.ts.map
+│   │   │   │   ├── rendering.d.ts
+│   │   │   │   ├── rendering.d.ts.map
+│   │   │   │   ├── scatterplot.d.ts
+│   │   │   │   ├── scatterplot.d.ts.map
+│   │   │   │   ├── selection.d.ts
+│   │   │   │   ├── selection.d.ts.map
+│   │   │   │   ├── tile.d.ts
+│   │   │   │   ├── tile.d.ts.map
+│   │   │   │   ├── tixrixqid.d.ts
+│   │   │   │   ├── tixrixqid.d.ts.map
+│   │   │   │   ├── types.d.ts
+│   │   │   │   ├── types.d.ts.map
+│   │   │   │   ├── typing.d.ts
+│   │   │   │   ├── typing.d.ts.map
+│   │   │   │   ├── utilityFunctions.d.ts
+│   │   │   │   ├── utilityFunctions.d.ts.map
+│   │   │   │   ├── wrap_arrow.d.ts
+│   │   │   │   └── wrap_arrow.d.ts.map
+│   │   │   ├── src
+│   │   │   │   ├── aesthetics
+│   │   │   │   │   ├── Aesthetic.ts
+│   │   │   │   │   ├── AestheticSet.ts
+│   │   │   │   │   ├── BooleanAesthetic.ts
+│   │   │   │   │   ├── ColorAesthetic.ts
+│   │   │   │   │   ├── ScaledAesthetic.ts
+│   │   │   │   │   └── StatefulAesthetic.ts
+│   │   │   │   ├── glsl
+│   │   │   │   │   ├── gaussian_blur.frag
+│   │   │   │   │   ├── general.frag
+│   │   │   │   │   ├── general.vert
+│   │   │   │   │   ├── geopolygons.frag
+│   │   │   │   │   ├── geopolygons.vert
+│   │   │   │   │   ├── line_shader.vert
+│   │   │   │   │   ├── line.frag
+│   │   │   │   │   └── log_spiral_jitter.vert
+│   │   │   │   ├── deepscatter.ts
+│   │   │   │   ├── Deeptable.ts
+│   │   │   │   ├── defaults.ts
+│   │   │   │   ├── geo_lines.js
+│   │   │   │   ├── geo_poly.js
+│   │   │   │   ├── glsl-read-float.d.ts
+│   │   │   │   ├── interaction.ts
+│   │   │   │   ├── label_rendering.ts
+│   │   │   │   ├── lookup_textures_from_arrow.js
+│   │   │   │   ├── regl_rendering.ts
+│   │   │   │   ├── rendering.ts
+│   │   │   │   ├── scatterplot.ts
+│   │   │   │   ├── selection.ts
+│   │   │   │   ├── tile.ts
+│   │   │   │   ├── tixrixqid.ts
+│   │   │   │   ├── types.ts
+│   │   │   │   ├── typing.ts
+│   │   │   │   ├── utilityFunctions.ts
+│   │   │   │   └── wrap_arrow.ts
+│   │   │   ├── tests
+│   │   │   │   ├── basic_display.spec.d.ts
+│   │   │   │   ├── basic_display.spec.ts
+│   │   │   │   ├── dataset.spec.js
+│   │   │   │   ├── datasetHelpers.js
+│   │   │   │   ├── MFUNC_DESC.geojson
+│   │   │   │   ├── MILSERVICE.geojson
+│   │   │   │   ├── takeoff_locations.geojson
+│   │   │   │   ├── TAKEOFFLOCATION.geojson
+│   │   │   │   ├── TGTTYPE.geojson
+│   │   │   │   └── true-unit-tests.spec.js
+│   │   │   ├── build.sh
+│   │   │   ├── clifford.html
+│   │   │   ├── CODE_OF_CONDUCT.md
+│   │   │   ├── ellipsis.yaml
+│   │   │   ├── index-simplest-way-to-start.html
+│   │   │   ├── index.html
+│   │   │   ├── integers.html
+│   │   │   ├── LICENSE
+│   │   │   ├── package-lock.json
+│   │   │   ├── package.json
+│   │   │   ├── playwright.config.d.ts
+│   │   │   ├── playwright.config.ts
+│   │   │   ├── publish_docs_if_stable.sh
+│   │   │   ├── README.md
+│   │   │   ├── release_notes.md
+│   │   │   ├── tsconfig.json
+│   │   │   ├── vietnam2.html
+│   │   │   └── vite.config.ts
+│   │   ├── dist
+│   │   │   ├── assets
+│   │   │   │   ├── index-9_sxcfan.js
+│   │   │   │   ├── index-D8b4DHJx.css
+│   │   │   │   └── react-CHdo91hT.svg
+│   │   │   ├── index.html
+│   │   │   └── vite.svg
+│   │   ├── old
+│   │   │   ├── public
+│   │   │   │   └── index.html
+│   │   │   ├── src
+│   │   │   │   ├── styles
+│   │   │   │   │   └── EmbeddingVisualization.css
+│   │   │   │   ├── App.css
+│   │   │   │   ├── App.tsx
+│   │   │   │   ├── index.css
+│   │   │   │   └── index.tsx
+│   │   │   ├── package-lock.json
+│   │   │   ├── package.json
+│   │   │   └── tsconfig.json
+│   │   ├── public
+│   │   │   ├── vietnam2.html
+│   │   │   └── vite.svg
+│   │   ├── src
+│   │   │   ├── assets
+│   │   │   │   └── react.svg
+│   │   │   ├── components
+│   │   │   │   ├── __tests__
+│   │   │   │   │   └── EmbeddingVisualization.test.tsx
+│   │   │   │   ├── EmbeddingVisualization.tsx
+│   │   │   │   ├── tooltip.css
+│   │   │   │   ├── VietnamMap.module.css
+│   │   │   │   └── VietnamMap.tsx
+│   │   │   ├── lib
+│   │   │   │   (empty directory)
+│   │   │   ├── App.css
+│   │   │   ├── App.tsx
+│   │   │   ├── index.css
+│   │   │   ├── main.tsx
+│   │   │   └── vite-env.d.ts
+│   │   ├── Dockerfile
+│   │   ├── eslint.config.js
+│   │   ├── index.html
+│   │   ├── package-lock.json
+│   │   ├── package.json
+│   │   ├── README.md
+│   │   ├── tsconfig.app.json
+│   │   ├── tsconfig.json
+│   │   ├── tsconfig.node.json
+│   │   └── vite.config.ts
+│   ├── docker-compose.yml
+│   ├── embeddings.py
+│   └── README.md
+├── memory-bank
+│   └── architeture
+├── schemas
+│   (empty directory)
+├── copy_to_all.txt
+├── docker-compose.yaml
+├── envoy.yaml
+└── rules.md
+```
+
+# File Contents
+
+## files/backend/Dockerfile
+
+```
+FROM python:3.9
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000","--reload"]
+```
+
+## files/backend/Dockerfile.worker
+
+```worker
+FROM python:3.9
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+CMD ["python", "worker.py"]
+```
+
+## files/backend/auth.py
+
+```py
+from fastapi import Depends, HTTPException, status
+from fastapi.security import HTTPBearer
+from sqlalchemy.orm import Session
+import models, schemas, database
+from typing import Optional
+
+security = HTTPBearer()
+
+async def verify_token(token: str) -> dict:
+    """
+    Verify token with Envoy. This is a placeholder - implement actual verification.
+    """
+    # In production, verify token with your auth provider
+    # For development, you might want to accept any token
+    return {"x-user-id": "test-user", "email": "test@example.com"}
+
+async def get_current_user(
+    token: str = Depends(security),
+    db: Session = Depends(database.get_db)
+) -> schemas.User:
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW.Authenticate": "Bearer"},
+    )
+    
+    try:
+        payload = await verify_token(token.credentials)
+        external_id: str = payload.get("x-user-id")
+        if external_id is None:
+            raise credentials_exception
+    except Exception:
+        raise credentials_exception
+    
+    # Get or create user
+    user = db.query(models.User).filter(models.User.external_id == external_id).first()
+    if not user:
+        user = models.User(
+            external_id=payload.get("x-user-id"),
+            email=payload.get("email")
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+    
+    return user 
+```
+
+## files/backend/database.py
+
+```py
+from sqlalchemy import create_engine, text
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+import os
+import logging
+
+# Configure SQL logging
+logging.basicConfig()
+logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+
+POSTGRES_URL = os.getenv("DATABASE_URL", "postgresql://admin:secret@postgres/embeddings")
+
+# Enable echo mode to see SQL queries
+engine = create_engine(POSTGRES_URL, echo=True)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+Base = declarative_base()
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+def debug_tables():
+    """Debug function to check table status"""
+    # Check registered tables in SQLAlchemy
+    print("Registered tables in SQLAlchemy metadata:", [table.name for table in Base.metadata.tables.values()])
+    
+```
+
+## files/backend/docker-compose.yaml
+
+```yaml
+version: "3.9"
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://admin:secret@postgres/embeddings
+      REDIS_HOST: redis
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - .:/app
+    restart: always
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    environment:
+      DATABASE_URL: postgresql://admin:secret@postgres/embeddings
+      REDIS_HOST: redis
+    depends_on:
+      - redis
+    volumes:
+      - .:/app
+    restart: always
+
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: embeddings
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: always
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    restart: always
+
+volumes:
+  postgres_data:
+```
+
+## files/backend/main.py
+
+```py
+from fastapi import FastAPI, Depends, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.orm import Session
+from sqlalchemy import inspect
+from typing import List
+import logging
+
+# Configure logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
+import models, schemas, database, auth
+from routers import projects, files, embeddings, visualizations
+
+app = FastAPI(title="Embedding Visualizer API")
+
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # React frontend
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Database initialization
+logger.info("Creating database tables...")
+models.Base.metadata.create_all(bind=database.engine)
+
+# Log existing tables
+inspector = inspect(database.engine)
+existing_tables = inspector.get_table_names()
+logger.info(f"Created tables: {existing_tables}")
+
+# Include routers
+app.include_router(projects.router, prefix="/api/projects", tags=["projects"])
+app.include_router(files.router, prefix="/api/files", tags=["files"])
+app.include_router(embeddings.router, prefix="/api/embeddings", tags=["embeddings"])
+app.include_router(visualizations.router, prefix="/api/visualizations", tags=["visualizations"])
+
+@app.get("/api/me", response_model=schemas.User)
+async def read_users_me(current_user: schemas.User = Depends(auth.get_current_user)):
+    return current_user
+```
+
+## files/backend/models.py
+
+```py
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, JSON, Text
+from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
+from database import Base
+
+class User(Base):
+    __tablename__ = "users"
+    
+    user_id = Column(Integer, primary_key=True, index=True)
+    external_id = Column(String, unique=True, index=True)
+    email = Column(String, unique=True, index=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    projects = relationship("Project", back_populates="owner")
+
+class Project(Base):
+    __tablename__ = "projects"
+    
+    project_id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, index=True)
+    description = Column(Text)
+    user_id = Column(Integer, ForeignKey("users.user_id"))
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    owner = relationship("User", back_populates="projects")
+    files = relationship("File", back_populates="project")
+
+class File(Base):
+    __tablename__ = "files"
+    
+    file_id = Column(Integer, primary_key=True, index=True)
+    filename = Column(String)
+    original_filename = Column(String)
+    file_type = Column(String)  # csv, parquet, etc.
+    project_id = Column(Integer, ForeignKey("projects.project_id"))
+    columns = Column(JSON)  # Store column metadata
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    row_count = Column(Integer, default=0)  # Track number of rows
+    
+    project = relationship("Project", back_populates="files")
+    embeddings = relationship("Embedding", back_populates="file")
+    rows = relationship("FileRow", back_populates="file")
+    visualizations = relationship("Visualization", back_populates="file")
+
+
+class FileRow(Base):
+    __tablename__ = "file_rows"
+    
+    row_id = Column(Integer, primary_key=True, index=True)
+    file_id = Column(Integer, ForeignKey("files.file_id"))
+    row_index = Column(Integer)  # Store the original row index
+    row_data = Column(JSON)  # Store the row as JSON
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    file = relationship("File", back_populates="rows")
+    embedding = relationship("Embedding", back_populates="row", uselist=False)
+    visualizations = relationship("Visualization", back_populates="row", uselist=False)
+
+
+class Embedding(Base):
+    __tablename__ = "embeddings"
+    
+    embedding_id = Column(Integer, primary_key=True, index=True)
+    file_id = Column(Integer, ForeignKey("files.file_id"))
+    row_id = Column(Integer, ForeignKey("file_rows.row_id"))
+    model_name = Column(String)  # e.g., "openai-text-embedding-ada-002"
+    status = Column(String)  # pending, processing, complete, failed
+    vector_dimension = Column(Integer)
+    vector = Column(JSON)  # Store the embedding vector as JSON array
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    file = relationship("File", back_populates="embeddings")
+    row = relationship("FileRow", back_populates="embedding")
+    visualizations = relationship("Visualization", back_populates="embedding", uselist=False)
+
+
+class Visualization(Base):
+    __tablename__ = "visualizations"
+    
+    visualization_id = Column(Integer, primary_key=True, index=True)
+    file_id = Column(Integer, ForeignKey("files.file_id"))
+    embedding_id = Column(Integer, ForeignKey("embeddings.embedding_id"))
+    row_id = Column(Integer, ForeignKey("file_rows.row_id"))
+
+    method = Column(String)  # umap, tsne, pca
+    dimensions = Column(Integer)  # 2 or 3
+    coordinates = Column(JSON)  # Store reduced coordinates (renamed from coordinate)
+    clusters = Column(JSON, nullable=True)  # Optional clustering information (renamed from cluster)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    
+    embedding = relationship("Embedding", back_populates="visualizations", uselist=False)
+    file = relationship("File", back_populates="visualizations")
+    row = relationship("FileRow", back_populates="visualizations", uselist=False)
+
+```
+
+## files/backend/requirements.txt
+
+```txt
+fastapi>=0.68.0
+uvicorn>=0.15.0
+sqlalchemy>=1.4.23
+psycopg2-binary>=2.9.1
+python-multipart>=0.0.5
+python-jose[cryptography]>=3.3.0
+rq>=1.10.1
+redis>=4.3.4
+numpy>=1.21.2
+pandas>=1.3.3
+umap-learn>=0.5.2
+scikit-learn>=1.0.2
+torch>=1.10.0
+transformers>=4.18.0
+openai>=0.27.0
+tenacity>=8.0.1
+python-dotenv>=0.19.0
+email-validator>=1.1.3
+pyarrow>=7.0.0  # For reading parquet files with pandas
+```
+
+## files/backend/routers/embeddings.py
+
+```py
+from services.progress import progress_tracker
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+from typing import List
+
+import models, schemas, database, auth, tasks
+
+router = APIRouter()
+
+@router.post("/{file_id}/generate", response_model=schemas.Embedding)
+async def generate_embeddings(
+    file_id: int,
+    columns: List[str],
+    model_name: str = "openai-text-embedding-ada-002",
+    current_user: schemas.User = Depends(auth.get_current_user),
+    db: Session = Depends(database.get_db)
+):
+    # Check file exists and belongs to user
+    file = db.query(models.File).join(models.Project).filter(
+        models.File.file_id == file_id,
+        models.Project.user_id == current_user.user_id
+    ).first()
+    if not file:
+        raise HTTPException(status_code=404, detail="File not found")
+
+    # Validate columns exist in file
+    if not file.columns:
+        raise HTTPException(status_code=400, detail="File columns not yet processed")
+    
+    available_columns = set(file.columns.get("names", []))
+    invalid_columns = set(columns) - available_columns
+    if invalid_columns:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid columns: {', '.join(invalid_columns)}"
+        )
+
+    # Create embedding record
+    embedding = models.Embedding(
+        file_id=file_id,
+        model_name=model_name,
+        status="pending",
+        vector_dimension=0  # Will be updated during processing
+    )
+    db.add(embedding)
+    db.commit()
+    db.refresh(embedding)
+
+    # Enqueue embedding generation task
+    tasks.queue.enqueue(
+        tasks.generate_embeddings,
+        embedding.embedding_id,
+        columns,
+        model_name,
+        job_timeout="1h"
+    )
+
+    return embedding
+
+@router.get("/{embedding_id}/status", response_model=schemas.Embedding)
+async def get_embedding_status(
+    embedding_id: int,
+    current_user: schemas.User = Depends(auth.get_current_user),
+    db: Session = Depends(database.get_db)
+):
+    embedding = db.query(models.Embedding).join(models.File).join(models.Project).filter(
+        models.Embedding.embedding_id == embedding_id,
+        models.Project.user_id == current_user.user_id
+    ).first()
+    if not embedding:
+        raise HTTPException(status_code=404, detail="Embedding not found")
+
+    return embedding
+
+@router.get("/{embedding_id}/progress")
+async def get_embedding_progress(
+    embedding_id: int,
+    current_user: schemas.User = Depends(auth.get_current_user),
+    db: Session = Depends(database.get_db)
+):
+    # Verify user has access to this embedding
+    embedding = db.query(models.Embedding).join(models.File).join(models.Project).filter(
+        models.Embedding.embedding_id == embedding_id,
+        models.Project.user_id == current_user.user_id
+    ).first()
+    
+    if not embedding:
+        raise HTTPException(status_code=404, detail="Embedding not found")
+
+    progress = progress_tracker.get_progress(str(embedding_id))
+    if not progress:
+        return {
+            "status": embedding.status,
+            "progress": 0 if embedding.status == "pending" else 100
+        }
+    
+    return progress
+```
+
+## files/backend/routers/files.py
+
+```py
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
+from fastapi import Query
+from sqlalchemy.orm import Session
+from typing import List
+import pandas as pd
+import uuid
+import os
+from pathlib import Path
+
+import models, schemas, database, auth, tasks
+
+router = APIRouter()
+
+UPLOAD_DIR = Path("uploads")
+ALLOWED_EXTENSIONS = {".csv", ".parquet"}
+
+# Create upload directory if it doesn't exist
+UPLOAD_DIR.mkdir(exist_ok=True)
+
+def validate_file(filename: str) -> bool:
+    return Path(filename).suffix.lower() in ALLOWED_EXTENSIONS
+
+@router.post("/upload/{project_id}", response_model=schemas.File)
+async def upload_file(
+    project_id: int,
+    file: UploadFile = File(...),
+    current_user: schemas.User = Depends(auth.get_current_user),
+    db: Session = Depends(database.get_db)
+):
+    # Check project exists and belongs to user
+    project = db.query(models.Project).filter(
+        models.Project.project_id == project_id,
+        models.Project.user_id == current_user.user_id
+    ).first()
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    if not validate_file(file.filename):
+        raise HTTPException(
+            status_code=400,
+            detail=f"File type not allowed. Must be one of: {', '.join(ALLOWED_EXTENSIONS)}"
+        )
+
+    # Generate unique filename
+    file_extension = Path(file.filename).suffix
+    unique_filename = f"{uuid.uuid4()}{file_extension}"
+    file_path = UPLOAD_DIR / unique_filename
+
+    # Save file
+    try:
+        with file_path.open("wb") as buffer:
+            content = await file.read()
+            buffer.write(content)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Could not save file: {str(e)}")
+
+    # Read file for processing
+    try:
+        if file_extension.lower() == '.csv':
+            df = pd.read_csv(file_path)
+        elif file_extension.lower() == '.parquet':
+            df = pd.read_parquet(file_path)
+        else:
+            raise HTTPException(status_code=400, detail="Unsupported file type")
+    except Exception as e:
+        file_path.unlink()  # Clean up saved file
+        raise HTTPException(status_code=400, detail=f"Could not process file: {str(e)}")
+
+    # Create file record
+    db_file = models.File(
+        filename=unique_filename,
+        original_filename=file.filename,
+        file_type=file_extension.lstrip('.'),
+        project_id=project_id,
+        columns=df.columns.tolist(),
+        row_count=len(df)
+    )
+    db.add(db_file)
+    db.commit()
+    db.refresh(db_file)
+
+    # Insert each row into FileRow
+    try:
+        for idx, row in df.iterrows():
+            db_row = models.FileRow(
+                file_id=db_file.file_id,
+                row_index=idx,
+                row_data=row.to_dict()
+            )
+            db.add(db_row)
+        
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        file_path.unlink()  # Clean up saved file
+        db.delete(db_file)  # Clean up file record
+        db.commit()
+        raise HTTPException(status_code=500, detail=f"Could not save file rows: {str(e)}")
+
+    # Enqueue file processing task
+    tasks.queue.enqueue(
+        tasks.process_file,
+        db_file.file_id,
+        job_timeout="10m"
+    )
+    print("inserting db_file")
+    print(db_file)
+    return db_file
+
+@router.get("/{file_id}/rows", response_model=List[schemas.FileRow])
+async def get_file_rows(
+    file_id: int,
+    skip: int = Query(0, ge=0, description="Number of rows to skip"),
+    limit: int = Query(100, ge=1, le=1000, description="Maximum number of rows to return"),
+    current_user: schemas.User = Depends(auth.get_current_user),
+    db: Session = Depends(database.get_db)
+):
+    # Check file exists and belongs to user
+    file = db.query(models.File).join(models.Project).filter(
+        models.File.file_id == file_id,
+        models.Project.user_id == current_user.user_id
+    ).first()
+    if not file:
+        raise HTTPException(status_code=404, detail="File not found")
+
+    # Query rows with pagination
+    rows = db.query(models.FileRow).filter(
+        models.FileRow.file_id == file_id
+    ).order_by(models.FileRow.row_index).offset(skip).limit(limit).all()
+
+    return rows
+
+
+@router.get("/project/{project_id}", response_model=List[schemas.File])
+async def list_files(
+    project_id: int,
+    current_user: schemas.User = Depends(auth.get_current_user),
+    db: Session = Depends(database.get_db)
+):
+    # Check project exists and belongs to user
+    project = db.query(models.Project).filter(
+        models.Project.project_id == project_id,
+        models.Project.user_id == current_user.user_id
+    ).first()
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    return db.query(models.File).filter(models.File.project_id == project_id).all()
+
+@router.get("/{file_id}/columns")
+async def get_file_columns(
+    file_id: int,
+    current_user: schemas.User = Depends(auth.get_current_user),
+    db: Session = Depends(database.get_db)
+):
+    file = db.query(models.File).join(models.Project).filter(
+        models.File.file_id == file_id,
+        models.Project.user_id == current_user.user_id
+    ).first()
+    if not file:
+        raise HTTPException(status_code=404, detail="File not found")
+
+    if not file.columns:
+        raise HTTPException(status_code=400, detail="File columns not yet processed")
+
+    return file.columns
+```
+
+## files/backend/routers/projects.py
+
+```py
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+from typing import List
+
+import models, schemas, database, auth
+
+router = APIRouter()
+
+@router.get("/", response_model=List[schemas.Project])
+async def list_projects(
+    current_user: schemas.User = Depends(auth.get_current_user),
+    db: Session = Depends(database.get_db)
+):
+    return db.query(models.Project).filter(models.Project.user_id == current_user.user_id).all()
+
+@router.post("/", response_model=schemas.Project)
+async def create_project(
+    project: schemas.ProjectCreate,
+    current_user: schemas.User = Depends(auth.get_current_user),
+    db: Session = Depends(database.get_db)
+):
+    db_project = models.Project(**project.dict(), user_id=current_user.user_id)
+    db.add(db_project)
+    db.commit()
+    db.refresh(db_project)
+    return db_project
+
+@router.get("/{project_id}", response_model=schemas.Project)
+async def get_project(
+    project_id: int,
+    current_user: schemas.User = Depends(auth.get_current_user),
+    db: Session = Depends(database.get_db)
+):
+    project = db.query(models.Project).filter(
+        models.Project.project_id == project_id,
+        models.Project.user_id == current_user.user_id
+    ).first()
+    if project is None:
+        raise HTTPException(status_code=404, detail="Project not found")
+    return project
+
+@router.delete("/{project_id}")
+async def delete_project(
+    project_id: int,
+    current_user: schemas.User = Depends(auth.get_current_user),
+    db: Session = Depends(database.get_db)
+):
+    project = db.query(models.Project).filter(
+        models.Project.project_id == project_id,
+        models.Project.user_id == current_user.user_id
+    ).first()
+    if project is None:
+        raise HTTPException(status_code=404, detail="Project not found")
+    db.delete(project)
+    db.commit()
+    return {"detail": "Project deleted"}
+```
+
+## files/backend/routers/visualizations.py
+
+```py
+from fastapi import APIRouter, Depends, HTTPException, Query
+from typing import List, Optional
+from sqlalchemy.orm import Session
+import csv
+from io import StringIO
+import json
+from fastapi.responses import StreamingResponse, JSONResponse
+
+import models, schemas, database, auth
+
+router = APIRouter(
+    prefix="/visualizations",
+    tags=["visualizations"],
+    responses={404: {"description": "Not found"}}
+)
+
+@router.get("/{embedding_id}", response_model=List[schemas.Visualization])
+async def get_visualizations(
+    embedding_id: int,
+    method: Optional[str] = Query(None, description="Filter by visualization method (umap or pca)"),
+    dimensions: Optional[int] = Query(None, description="Filter by dimensions (2 or 3)"),
+    current_user: schemas.User = Depends(auth.get_current_user),
+    db: Session = Depends(database.get_db)
+):
+    """
+    Get visualizations for a specific embedding.
+    
+    - **embedding_id**: ID of the embedding
+    - **method**: Optional filter by visualization method (umap or pca)
+    - **dimensions**: Optional filter by number of dimensions (2 or 3)
+    
+    Returns a list of visualizations matching the criteria.
+    """
+    query = db.query(models.Visualization).join(models.Embedding).join(models.File).join(models.Project).filter(
+        models.Embedding.embedding_id == embedding_id,
+        models.Project.user_id == current_user.user_id
+    )
+
+    if method:
+        query = query.filter(models.Visualization.method == method)
+    if dimensions:
+        query = query.filter(models.Visualization.dimensions == dimensions)
+
+    visualizations = query.all()
+    if not visualizations:
+        raise HTTPException(status_code=404, detail="No visualizations found")
+
+    return visualizations
+
+@router.get("/{visualization_id}/export")
+async def export_visualization(
+    visualization_id: int,
+    format: str = Query("csv", description="Export format (csv or json)"),
+    current_user: schemas.User = Depends(auth.get_current_user),
+    db: Session = Depends(database.get_db)
+):
+    """
+    Export visualization data in CSV or JSON format.
+    
+    - **visualization_id**: ID of the visualization to export
+    - **format**: Export format, either 'csv' or 'json'
+    
+    Returns:
+    - For CSV: A file download response
+    - For JSON: A JSON array of points with coordinates and cluster information
+    """
+    visualization = db.query(models.Visualization).join(models.Embedding).join(models.File).join(models.Project).filter(
+        models.Visualization.visualization_id == visualization_id,
+        models.Project.user_id == current_user.user_id
+    ).first()
+
+    if not visualization:
+        raise HTTPException(status_code=404, detail="Visualization not found")
+
+    # Convert coordinates and clusters to a list of points
+    points = []
+    for i, coord in enumerate(visualization.coordinates):
+        point = {
+            "x": coord[0],
+            "y": coord[1],
+            **({"z": coord[2]} if visualization.dimensions == 3 else {}),
+            "cluster": visualization.clusters[i] if visualization.clusters else None
+        }
+        points.append(point)
+
+    if format == "json":
+        return JSONResponse(content=points)
+    else:  # csv
+        output = StringIO()
+        writer = csv.DictWriter(output, fieldnames=points[0].keys())
+        writer.writeheader()
+        writer.writerows(points)
+        return StreamingResponse(
+            iter([output.getvalue()]),
+            media_type="text/csv",
+            headers={"Content-Disposition": f"attachment; filename=visualization_{visualization_id}.csv"}
+        )
+```
+
+## files/backend/schemas.py
+
+```py
+from pydantic import BaseModel, EmailStr
+from typing import List, Optional, Dict, Any
+from datetime import datetime
+
+class UserBase(BaseModel):
+    email: EmailStr
+
+class User(UserBase):
+    user_id: int
+    external_id: str
+    created_at: datetime
+
+    class Config:
+        orm_mode = True
+
+class ProjectBase(BaseModel):
+    name: str
+    description: Optional[str] = None
+
+class ProjectCreate(ProjectBase):
+    pass
+
+class Project(ProjectBase):
+    project_id: int
+    user_id: int
+    created_at: datetime
+
+    class Config:
+        orm_mode = True
+
+class FileBase(BaseModel):
+    filename: str
+    file_type: str
+
+class FileCreate(FileBase):
+    project_id: int
+
+class File(FileBase):
+    file_id: int
+    original_filename: str
+    project_id: int
+    columns: Optional[List[str]]
+    created_at: datetime
+    row_count: int
+
+    class Config:
+        orm_mode = True
+
+class FileRowBase(BaseModel):
+    row_index: int
+    row_data: Dict[str, Any]
+
+class FileRowCreate(FileRowBase):
+    file_id: int
+
+class FileRow(FileRowBase):
+    row_id: int
+    file_id: int
+    created_at: datetime
+
+    class Config:
+        orm_mode = True
+
+class EmbeddingBase(BaseModel):
+    model_name: str
+    vector_dimension: int
+
+class EmbeddingCreate(EmbeddingBase):
+    file_id: int
+    row_id: int
+
+class Embedding(EmbeddingBase):
+    embedding_id: int
+    file_id: int
+    row_id: int
+    status: str
+    vector: List[float]
+    created_at: datetime
+
+    class Config:
+        orm_mode = True
+
+class VisualizationBase(BaseModel):
+    method: str
+    dimensions: int
+
+class VisualizationCreate(VisualizationBase):
+    embedding_id: int
+    file_id: int
+    row_id: int
+
+class Visualization(VisualizationBase):
+    visualization_id: int
+    embedding_id: int
+    file_id: int
+    row_id: int
+    coordinate: List[float]
+    cluster: Optional[int]
+    created_at: datetime
+
+    class Config:
+        orm_mode = True
+```
+
+## files/backend/services/embeddings.py
+
+```py
+from abc import ABC, abstractmethod
+import numpy as np
+from typing import List, Union
+import openai
+import torch
+from transformers import AutoTokenizer, AutoModel
+import os
+
+class EmbeddingModel(ABC):
+    @abstractmethod
+    async def generate(self, texts: List[str]) -> np.ndarray:
+        pass
+
+class OpenAIEmbedding(EmbeddingModel):
+    def __init__(self, model_name: str = "text-embedding-ada-002"):
+        self.model_name = model_name
+        openai.api_key = os.getenv("OPENAI_API_KEY")
+
+    async def generate(self, texts: List[str]) -> np.ndarray:
+        try:
+            response = await openai.Embedding.acreate(
+                model=self.model_name,
+                input=texts
+            )
+            return np.array([r["embedding"] for r in response["data"]])
+        except Exception as e:
+            raise ValueError(f"OpenAI API error: {str(e)}")
+
+class HuggingFaceEmbedding(EmbeddingModel):
+    def __init__(self, model_name: str = "sentence-transformers/all-mpnet-base-v2"):
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+        self.model = AutoModel.from_pretrained(model_name).to(self.device)
+
+    async def generate(self, texts: List[str]) -> np.ndarray:
+        try:
+            # Tokenize and compute mean pooling
+            inputs = self.tokenizer(
+                texts,
+                padding=True,
+                truncation=True,
+                return_tensors="pt"
+            ).to(self.device)
+            
+            with torch.no_grad():
+                outputs = self.model(**inputs)
+                # Use mean pooling of last hidden state
+                embeddings = torch.mean(outputs.last_hidden_state, dim=1)
+                
+            return embeddings.cpu().numpy()
+        except Exception as e:
+            raise ValueError(f"HuggingFace model error: {str(e)}")
+
+def get_embedding_model(model_name: str) -> EmbeddingModel:
+    return HuggingFaceEmbedding()
+```
+
+## files/backend/services/progress.py
+
+```py
+from redis import Redis
+import json
+from typing import Dict, Any, Optional
+import os
+
+class ProgressTracker:
+    def __init__(self):
+        self.redis = Redis(
+            host=os.getenv("REDIS_HOST", "redis"),
+            port=int(os.getenv("REDIS_PORT", 6379)),
+            decode_responses=True
+        )
+        self.key_prefix = "progress:"
+        self.expiry = 86400  # 24 hours
+
+    def set_progress(self, task_id: str, progress: Dict[str, Any]) -> None:
+        """Set progress for a task"""
+        key = f"{self.key_prefix}{task_id}"
+        self.redis.setex(
+            key,
+            self.expiry,
+            json.dumps(progress)
+        )
+
+    def get_progress(self, task_id: str) -> Optional[Dict[str, Any]]:
+        """Get progress for a task"""
+        key = f"{self.key_prefix}{task_id}"
+        data = self.redis.get(key)
+        return json.loads(data) if data else None
+
+    def update_progress(self, task_id: str, **kwargs) -> None:
+        """Update specific fields in the progress"""
+        current = self.get_progress(task_id) or {}
+        current.update(kwargs)
+        self.set_progress(task_id, current)
+
+progress_tracker = ProgressTracker()
+```
+
+## files/backend/tasks.py
+
+```py
+from services.progress import progress_tracker
+from tenacity import retry, stop_after_attempt, wait_exponential
+import traceback
+from typing import List, Optional
+
+from rq import Queue
+from redis import Redis
+from sqlalchemy.orm import Session
+import pandas as pd
+import numpy as np
+from pathlib import Path
+import os
+
+from services.embeddings import get_embedding_model, EmbeddingModel
+import numpy as np
+from sklearn.decomposition import PCA
+from umap import UMAP
+from sklearn.cluster import KMeans
+import asyncio
+
+import models, database
+
+redis_conn = Redis(
+    host=os.getenv("REDIS_HOST", "redis"),
+    port=int(os.getenv("REDIS_PORT", 6379))
+)
+queue = Queue("embeddings", connection=redis_conn)
+
+def get_db():
+    """Get database session for tasks"""
+    db = database.SessionLocal()
+    try:
+        return db
+    finally:
+        db.close()
+
+def process_file(file_id: int):
+    """Process uploaded file to extract columns and basic metadata"""
+    db = get_db()
+    file = db.query(models.File).get(file_id)
+    if not file:
+        return
+
+    try:
+        # Get all rows for this file
+        file_rows = db.query(models.FileRow).filter(
+            models.FileRow.file_id == file_id
+        ).order_by(models.FileRow.row_index).all()
+        
+        if not file_rows:
+            raise ValueError("No rows found for file")
+            
+        # Convert row data to DataFrame
+        rows_data = [row.row_data for row in file_rows]
+        df = pd.DataFrame(rows_data)
+
+        # Extract column information
+        columns = {
+            "names": df.columns.tolist(),
+            "types": df.dtypes.astype(str).to_dict(),
+            "sample_size": len(df),
+            "numeric_columns": df.select_dtypes(include=[np.number]).columns.tolist(),
+            "text_columns": df.select_dtypes(include=['object']).columns.tolist()
+        }
+
+        file.columns = columns
+        db.commit()
+
+    except Exception as e:
+        file.columns = {"error": str(e)}
+        db.commit()
+        raise
+
+class EmbeddingError(Exception):
+    """Custom exception for embedding generation errors"""
+    pass
+
+@retry(
+    stop=stop_after_attempt(3),
+    wait=wait_exponential(multiplier=1, min=4, max=10)
+)
+async def _generate_embeddings_batch(
+    texts: List[str],
+    model: EmbeddingModel,
+    batch_size: int = 100
+) -> np.ndarray:
+    """Generate embeddings for a batch of texts with retry logic"""
+    embeddings_list = []
+    
+    for i in range(0, len(texts), batch_size):
+        batch = texts[i:i + batch_size]
+        try:
+            batch_embeddings = await model.generate(batch)
+            embeddings_list.append(batch_embeddings)
+        except Exception as e:
+            raise EmbeddingError(f"Failed to generate embeddings for batch {i}: {str(e)}")
+    
+    return np.vstack(embeddings_list)
+
+async def generate_embeddings(embedding_id: int, columns: List[str], model_name: str):
+    """Generate embeddings with progress tracking and error handling"""
+    db = get_db()
+    embedding = db.query(models.Embedding).get(embedding_id)
+    if not embedding:
+        return
+
+    progress_tracker.set_progress(str(embedding_id), {
+        "status": "starting",
+        "progress": 0,
+        "current_step": "initialization",
+        "error": None
+    })
+
+    try:
+        embedding.status = "processing"
+        db.commit()
+
+        # Load data from FileRows
+        progress_tracker.update_progress(
+            str(embedding_id),
+            status="processing",
+            current_step="loading_data",
+            progress=10
+        )
+
+        file = embedding.file
+        file_rows = db.query(models.FileRow).filter(
+            models.FileRow.file_id == file.file_id
+        ).order_by(models.FileRow.row_index).all()
+
+        if not file_rows:
+            raise ValueError("No rows found for file")
+
+        # Convert row data to DataFrame
+        rows_data = [row.row_data for row in file_rows]
+        df = pd.DataFrame(rows_data)
+
+        # Prepare text
+        progress_tracker.update_progress(
+            str(embedding_id),
+            current_step="preparing_text",
+            progress=20
+        )
+
+        texts = df[columns].astype(str).agg(" ".join, axis=1).tolist()
+        
+        # Generate embeddings
+        progress_tracker.update_progress(
+            str(embedding_id),
+            current_step="generating_embeddings",
+            progress=30
+        )
+
+        model = get_embedding_model(model_name)
+        embeddings = await _generate_embeddings_batch(texts, model)
+        
+        # Store embeddings
+        progress_tracker.update_progress(
+            str(embedding_id),
+            current_step="storing_embeddings",
+            progress=60
+        )
+
+        embedding.embedding_vectors = embeddings.tolist()
+        embedding.vector_dimension = embeddings.shape[1]
+        
+        # Generate visualizations
+        progress_tracker.update_progress(
+            str(embedding_id),
+            current_step="generating_visualizations",
+            progress=70
+        )
+
+        visualizations = []
+        
+        # UMAP 2D
+        umap_2d = UMAP(n_components=2, random_state=42)
+        coords_2d = umap_2d.fit_transform(embeddings)
+        
+        # Clustering
+        kmeans = KMeans(n_clusters=min(8, len(texts)), random_state=42)
+        clusters = kmeans.fit_predict(embeddings)
+        
+        vis_2d = models.Visualization(
+            embedding_id=embedding.embedding_id,
+            method="umap",
+            dimensions=2,
+            coordinates=coords_2d.tolist(),
+            clusters=clusters.tolist()
+        )
+        visualizations.append(vis_2d)
+        
+        progress_tracker.update_progress(
+            str(embedding_id),
+            current_step="generating_3d_visualization",
+            progress=80
+        )
+
+        # UMAP 3D
+        umap_3d = UMAP(n_components=3, random_state=42)
+        coords_3d = umap_3d.fit_transform(embeddings)
+        
+        vis_3d = models.Visualization(
+            embedding_id=embedding.embedding_id,
+            method="umap",
+            dimensions=3,
+            coordinates=coords_3d.tolist(),
+            clusters=clusters.tolist()
+        )
+        visualizations.append(vis_3d)
+        
+        progress_tracker.update_progress(
+            str(embedding_id),
+            current_step="generating_pca",
+            progress=90
+        )
+
+        # PCA visualizations
+        pca_2d = PCA(n_components=2)
+        pca_coords_2d = pca_2d.fit_transform(embeddings)
+        
+        vis_pca_2d = models.Visualization(
+            embedding_id=embedding.embedding_id,
+            method="pca",
+            dimensions=2,
+            coordinates=pca_coords_2d.tolist(),
+            clusters=clusters.tolist()
+        )
+        visualizations.append(vis_pca_2d)
+        
+        db.add_all(visualizations)
+        embedding.status = "complete"
+        db.commit()
+
+        progress_tracker.update_progress(
+            str(embedding_id),
+            status="complete",
+            current_step="finished",
+            progress=100
+        )
+
+    except Exception as e:
+        error_details = {
+            "error": str(e),
+            "traceback": traceback.format_exc()
+        }
+        
+        embedding.status = "failed"
+        db.commit()
+        
+        progress_tracker.update_progress(
+            str(embedding_id),
+            status="failed",
+            error=error_details
+        )
+        
+        raise
+```
+
+## files/backend/tests/test_visualizations.py
+
+```py
+import pytest
+from fastapi.testclient import TestClient
+from ..main import app
+from .. import models
+import numpy as np
+
+client = TestClient(app)
+
+@pytest.fixture
+def mock_db_session(mocker):
+    # Mock SQLAlchemy session
+    session = mocker.Mock()
+    mocker.patch('backend.database.get_db', return_value=session)
+    return session
+
+@pytest.fixture
+def mock_auth_user(mocker):
+    # Mock authenticated user
+    user = models.User(id=1, external_id="test-user")
+    mocker.patch('backend.auth.get_current_user', return_value=user)
+    return user
+
+def test_get_visualizations(mock_db_session, mock_auth_user):
+    # Mock visualization data
+    mock_visualization = models.Visualization(
+        id=1,
+        embedding_id=1,
+        method="umap",
+        dimensions=2,
+        coordinates=[[1.0, 2.0], [3.0, 4.0]],
+        clusters=[0, 1]
+    )
+    
+    mock_db_session.query.return_value.join.return_value.join.return_value \
+        .join.return_value.filter.return_value.all.return_value = [mock_visualization]
+
+    response = client.get("/api/visualizations/1")
+    assert response.status_code == 200
+    assert len(response.json()) == 1
+    assert response.json()[0]["method"] == "umap"
+
+def test_export_visualization(mock_db_session, mock_auth_user):
+    # Mock visualization data
+    mock_visualization = models.Visualization(
+        id=1,
+        embedding_id=1,
+        method="umap",
+        dimensions=2,
+        coordinates=[[1.0, 2.0], [3.0, 4.0]],
+        clusters=[0, 1]
+    )
+    
+    mock_db_session.query.return_value.join.return_value.join.return_value \
+        .join.return_value.filter.return_value.first.return_value = mock_visualization
+
+    # Test CSV export
+    response = client.get("/api/visualizations/1/export?format=csv")
+    assert response.status_code == 200
+    assert response.headers["content-type"] == "text/csv"
+    
+    # Test JSON export
+    response = client.get("/api/visualizations/1/export?format=json")
+    assert response.status_code == 200
+    assert response.headers["content-type"] == "application/json"
+```
+
+## files/backend/worker.py
+
+```py
+import os
+import redis
+from rq import Worker, Queue
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+listen = ['embeddings']
+
+redis_conn = redis.Redis(
+    host=os.getenv("REDIS_HOST", "redis"),
+    port=int(os.getenv("REDIS_PORT", 6379))
+)
+
+if __name__ == '__main__':
+    logger.info("Starting worker...")
+    try:
+        worker = Worker([Queue(name, connection=redis_conn) for name in listen])
+        worker.work()
+    except Exception as e:
+        logger.error(f"Worker failed: {str(e)}")
+```
+

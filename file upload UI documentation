@@ -1,0 +1,105 @@
+
+
+
+
+Add Data Wizard Documentation
+
+This document outlines the steps and UI elements for the "Add Data" wizard in the embedding platform.
+
+
+
+Step 1: Select Source
+
+Screen Title: Add Data
+
+Progress Indicator: "Select Source" is highlighted in green as the current step. "Preview and select Fields", "Review", and "Done" are inactive/grey.
+
+Navigation Buttons:
+
+"Back": Inactive/Grey (as it's the first step).
+
+"Next": Active, highlighted in green.
+
+Main Content:
+
+Title: Select Source
+
+Instructions: "Choose a file to upload to the platform by Browse or dropping a file into the designated area."
+
+File Selection Area:
+
+Text: "Selected File: No file selected" (Initial state)
+
+Button: "Select File" (Prominently displayed, indicating the primary action).
+
+Drag-and-Drop Area:
+
+Large rectangular area.
+
+Centered Text: "Drop your data file here"
+
+Subtitle Text: "The maximum file upload size is 500 Mb"
+
+Step 2: Preview and select Fields
+
+Screen Title: Add Data
+
+Progress Indicator: "Select Source" is marked as completed (e.g., green checkmark or solid green fill). "Preview and select Fields" is highlighted in green as the current step. "Review" and "Done" are inactive/grey.
+
+Navigation Buttons:
+
+"Back": Active.
+
+"Review": Active, highlighted in green. (This button label leads to the Review step).
+
+Main Content:
+
+Title: Preview and select Fields
+
+Explanation: This UI would display some settings, column selection, other input arguments and the preview of the table.
+
+Layout: Split into two main sections:
+
+Left Section: Configuration settings including dropdowns for Selection of embedding columns.
+
+Right Section: Data Preview Table. Displays a preview of a random sample of the uploaded data based on the configured settings. Table headers and content reflect how the data will be ingested after processing.
+
+Step 3: Review
+
+Screen Title: Add Data
+
+Progress Indicator: "Select Source" and "Preview and select Fields" are marked as completed (green). "Review" is highlighted in green as the current step. "Done" is inactive/grey.
+
+Navigation Buttons:
+
+"Back": Active.
+
+"Done": Active, highlighted in green. (This button label leads to the completion step).
+
+Main Content:
+
+Title: Review
+
+Content: Displays a summary page confirming the file selected, the embedding fields identified or configured applied in the previous step.
+
+Step 4: Done
+
+Screen Title: Upload Complete
+
+Progress Indicator: All steps ("Select Source", "Preview and select Fields", "Review") are marked as completed with green checkmarks. "Done" is highlighted in green as the current step.
+
+Navigation Buttons:
+
+"Back": Active (Allows returning to previous steps to review/edit before final closure).
+
+"Finish" or "Close": Active, likely highlighted in green. This button completes the "Add Data" process and typically closes the wizard or navigates the user to the next relevant screen (e.g., viewing the data).
+
+Main Content:
+
+Title: Upload Complete
+
+Confirmation Message:
+
+Large green checkmark icon.
+
+Text: "File has started progressing successfully."

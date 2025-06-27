@@ -18,6 +18,15 @@ import numpy as np
 from sklearn.decomposition import PCA
 from umap import UMAP
 from sklearn.cluster import KMeans
+
+import cuml
+import cuml.manifold.umap as cuml_umap
+import cuml.decomposition.pca as cuml_pca
+import cuml.cluster.kmeans as cuml_kmeans
+
+import cupy as cp # Import cupy
+
+
 import asyncio
 
 import models, database, schemas # Added schemas
@@ -242,102 +251,245 @@ async def generate_embeddings_and_visualizations(job_id: str, file_id: int, colu
         ordered_vectors = np.array([emb.vector for emb in embeddings_for_vis])
 
         # Perform Clustering (optional, example with KMeans)
+        # n_clusters = min(8, len(ordered_vectors)) # Example: Max 8 clusters
+        # clusters = None
+        # if len(ordered_vectors) > n_clusters: # Avoid clustering if too few points
+        #     try:
+        #         kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=10) # Specify n_init
+        #         clusters = kmeans.fit_predict(ordered_vectors).tolist()
+        #         logger.info(f"[Job {job_id}] Generated clusters.")
+        #     except Exception as cluster_err:
+        #         logger.warning(f"[Job {job_id}] Clustering failed: {cluster_err}")
+        #         clusters = [None] * len(ordered_vectors) # Assign null if clustering fails
+        # else:
+        #     clusters = [0] * len(ordered_vectors) # Assign single cluster if too few points
+
+        # Determine number of clusters - this logic remains the same
         n_clusters = min(8, len(ordered_vectors)) # Example: Max 8 clusters
         clusters = None
-        if len(ordered_vectors) > n_clusters: # Avoid clustering if too few points
+
+        gpu_ordered_vectors = None
+        try:
+            gpu_ordered_vectors = cp.asarray(ordered_vectors)
+            logger.info(f"[Job {job_id}] Converted ordered_vectors to CuPy array.")
+        except Exception as e:
+            logger.error(f"[Job {job_id}] Failed to convert ordered_vectors to CuPy array: {e}")
+            # Decide how to handle this critical failure - maybe raise or return?
+            # For now, we'll just log and subsequent steps will likely fail.
+            raise # Re-raise the exception as we can't proceed without GPU data
+
+
+        # Avoid clustering if too few points
+        if len(ordered_vectors) > n_clusters:
+            progress_tracker.update_progress(job_id, current_step="generating_clusters_gpu", progress=60)
             try:
-                kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=10) # Specify n_init
-                clusters = kmeans.fit_predict(ordered_vectors).tolist()
-                logger.info(f"[Job {job_id}] Generated clusters.")
+                # Use cuml.cluster.KMeans
+                # Note: cuml's KMeans also supports random_state and n_init
+                cuml_kmeans_model = cuml_kmeans.KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
+                # Fit and predict on the GPU data, then transfer results back to CPU and convert to list
+                # Assuming gpu_ordered_vectors was created earlier from ordered_vectors
+                clusters = cuml_kmeans_model.fit_predict(gpu_ordered_vectors).get().tolist()
+                logger.info(f"[Job {job_id}] Generated clusters (GPU).")
             except Exception as cluster_err:
-                logger.warning(f"[Job {job_id}] Clustering failed: {cluster_err}")
-                clusters = [None] * len(ordered_vectors) # Assign null if clustering fails
+                logger.warning(f"[Job {job_id}] Clustering (GPU) failed: {cluster_err}")
+                # Decide how to handle failure - assigning None or a single cluster?
+                # Original code assigns None for each. Let's keep that behavior.
+                clusters = [-1] * len(ordered_vectors) # Assign null if clustering fails
         else:
-            clusters = [0] * len(ordered_vectors) # Assign single cluster if too few points
+            # Assign single cluster if too few points - this logic remains the same
+            clusters = [0] * len(ordered_vectors)
 
         # Generate UMAP 2D
         progress_tracker.update_progress(job_id, current_step="generating_umap_2d", progress=70)
+
+        # Generate UMAP 2D using cuML
+        progress_tracker.update_progress(job_id, current_step="generating_umap_2d_gpu", progress=70)
         umap_2d_coords = None
         try:
-            umap_2d = UMAP(n_components=2, random_state=42)
-            umap_2d_coords = umap_2d.fit_transform(ordered_vectors).tolist()
-            logger.info(f"[Job {job_id}] Generated UMAP 2D coordinates.")
+            # Use cuml.manifold.UMAP
+            cuml_umap_2d = cuml_umap.UMAP(n_components=2, random_state=42)
+            # Fit and transform on the GPU data, then transfer results back to CPU and convert to list
+            umap_2d_coords = cuml_umap_2d.fit_transform(gpu_ordered_vectors).get().tolist()
+            logger.info(f"[Job {job_id}] Generated UMAP 2D coordinates (GPU).")
         except Exception as umap_err:
-            logger.warning(f"[Job {job_id}] UMAP 2D failed: {umap_err}")
+            logger.warning(f"[Job {job_id}] UMAP 2D (GPU) failed: {umap_err}")
             # Handle failure? Maybe skip this visualization?
 
-        # Generate UMAP 3D
-        progress_tracker.update_progress(job_id, current_step="generating_umap_3d", progress=80)
+        # Generate UMAP 3D using cuML
+        progress_tracker.update_progress(job_id, current_step="generating_umap_3d_gpu", progress=80)
         umap_3d_coords = None
         try:
-            umap_3d = UMAP(n_components=3, random_state=42)
-            umap_3d_coords = umap_3d.fit_transform(ordered_vectors).tolist()
-            logger.info(f"[Job {job_id}] Generated UMAP 3D coordinates.")
+            # Use cuml.manifold.UMAP
+            cuml_umap_3d = cuml_umap.UMAP(n_components=3, random_state=42)
+            # Fit and transform on the GPU data, then transfer results back to CPU and convert to list
+            umap_3d_coords = cuml_umap_3d.fit_transform(gpu_ordered_vectors).get().tolist()
+            logger.info(f"[Job {job_id}] Generated UMAP 3D coordinates (GPU).")
         except Exception as umap_err:
-            logger.warning(f"[Job {job_id}] UMAP 3D failed: {umap_err}")
+            logger.warning(f"[Job {job_id}] UMAP 3D (GPU) failed: {umap_err}")
 
-        # Generate PCA 2D
-        progress_tracker.update_progress(job_id, current_step="generating_pca_2d", progress=90)
+        # Generate PCA 2D using cuML
+        progress_tracker.update_progress(job_id, current_step="generating_pca_2d_gpu", progress=90)
         pca_2d_coords = None
         try:
-            pca_2d = PCA(n_components=2)
-            pca_2d_coords = pca_2d.fit_transform(ordered_vectors).tolist()
-            logger.info(f"[Job {job_id}] Generated PCA 2D coordinates.")
+            # Use cuml.decomposition.PCA
+            cuml_pca_2d = cuml_pca.PCA(n_components=2)
+            # Fit and transform on the GPU data, then transfer results back to CPU and convert to list
+            pca_2d_coords = cuml_pca_2d.fit_transform(gpu_ordered_vectors).get().tolist()
+            logger.info(f"[Job {job_id}] Generated PCA 2D coordinates (GPU).")
         except Exception as pca_err:
-             logger.warning(f"[Job {job_id}] PCA 2D failed: {pca_err}")
+            logger.warning(f"[Job {job_id}] PCA 2D (GPU) failed: {pca_err}")
 
+        # Note: gpu_ordered_vectors is automatically garbage collected by Python/CuPy when no longer referenced
 
-        # Create Visualization records for each row and each method
+        # --- End of Cuml Conversion ---
+
+        # Create Visualization records for each row and each method (This part remains the same)
         logger.info(f"[Job {job_id}] Storing visualization records.")
         visualizations_to_add = []
         for i, embedding_record in enumerate(embeddings_for_vis):
-            row_cluster = clusters[i] if clusters else None
-
+            # Assuming 'clusters' is a list or array corresponding to the rows in ordered_vectors
+            row_cluster = clusters[i] if clusters is not None and i < len(clusters) else None
             # UMAP 2D Visualization Record
             if umap_2d_coords:
-                vis_umap_2d = models.Visualization(
-                    file_id=file_id,
-                    embedding_id=embedding_record.embedding_id,
-                    row_id=embedding_record.row_id,
-                    method="umap",
-                    dimensions=2,
-                    coordinates=umap_2d_coords[i], # Store coordinate for this row
-                    clusters=row_cluster # Store cluster label for this row (using plural column name)
-                )
-                visualizations_to_add.append(vis_umap_2d)
+                # Check if index i is within bounds
+                if i < len(umap_2d_coords):
+                    vis_umap_2d = models.Visualization(
+                        file_id=file_id,
+                        embedding_id=embedding_record.embedding_id,
+                        row_id=embedding_record.row_id,
+                        method="umap",
+                        dimensions=2,
+                        coordinates=umap_2d_coords[i], # Store coordinate for this row
+                        clusters=row_cluster # Store cluster label for this row
+                    )
+                    visualizations_to_add.append(vis_umap_2d)
+                else:
+                    logger.warning(f"[Job {job_id}] UMAP 2D coords index out of bounds for row {i}.")
+
 
             # UMAP 3D Visualization Record
             if umap_3d_coords:
-                vis_umap_3d = models.Visualization(
-                    file_id=file_id,
-                    embedding_id=embedding_record.embedding_id,
-                    row_id=embedding_record.row_id,
-                    method="umap",
-                    dimensions=3,
-                    coordinates=umap_3d_coords[i],
-                    clusters=row_cluster
-                )
-                visualizations_to_add.append(vis_umap_3d)
+                # Check if index i is within bounds
+                if i < len(umap_3d_coords):
+                    vis_umap_3d = models.Visualization(
+                        file_id=file_id,
+                        embedding_id=embedding_record.embedding_id,
+                        row_id=embedding_record.row_id,
+                        method="umap",
+                        dimensions=3,
+                        coordinates=umap_3d_coords[i],
+                        clusters=row_cluster
+                    )
+                    visualizations_to_add.append(vis_umap_3d)
+                else:
+                    logger.warning(f"[Job {job_id}] UMAP 3D coords index out of bounds for row {i}.")
+
 
             # PCA 2D Visualization Record
             if pca_2d_coords:
-                vis_pca_2d = models.Visualization(
-                    file_id=file_id,
-                    embedding_id=embedding_record.embedding_id,
-                    row_id=embedding_record.row_id,
-                    method="pca",
-                    dimensions=2,
-                    coordinates=pca_2d_coords[i],
-                    clusters=row_cluster
-                )
-                visualizations_to_add.append(vis_pca_2d)
+                # Check if index i is within bounds
+                if i < len(pca_2d_coords):
+                    vis_pca_2d = models.Visualization(
+                        file_id=file_id,
+                        embedding_id=embedding_record.embedding_id,
+                        row_id=embedding_record.row_id,
+                        method="pca",
+                        dimensions=2,
+                        coordinates=pca_2d_coords[i],
+                        clusters=row_cluster
+                    )
+                    visualizations_to_add.append(vis_pca_2d)
+                else:
+                    logger.warning(f"[Job {job_id}] PCA 2D coords index out of bounds for row {i}.")
 
         if visualizations_to_add:
             db.add_all(visualizations_to_add)
             db.commit()
             logger.info(f"[Job {job_id}] Stored {len(visualizations_to_add)} visualization points.")
         else:
-            logger.warning(f"[Job {job_id}] No visualization points were generated or stored.")
+            logger.warning(f"[Job {job_id}] No visualization points were generated or stored.") 
+
+        # umap_2d_coords = None
+        # try:
+        #     umap_2d = UMAP(n_components=2, random_state=42)
+        #     umap_2d_coords = umap_2d.fit_transform(ordered_vectors).tolist()
+        #     logger.info(f"[Job {job_id}] Generated UMAP 2D coordinates.")
+        # except Exception as umap_err:
+        #     logger.warning(f"[Job {job_id}] UMAP 2D failed: {umap_err}")
+        #     # Handle failure? Maybe skip this visualization?
+
+        # # Generate UMAP 3D
+        # progress_tracker.update_progress(job_id, current_step="generating_umap_3d", progress=80)
+        # umap_3d_coords = None
+        # try:
+        #     umap_3d = UMAP(n_components=3, random_state=42)
+        #     umap_3d_coords = umap_3d.fit_transform(ordered_vectors).tolist()
+        #     logger.info(f"[Job {job_id}] Generated UMAP 3D coordinates.")
+        # except Exception as umap_err:
+        #     logger.warning(f"[Job {job_id}] UMAP 3D failed: {umap_err}")
+
+        # # Generate PCA 2D
+        # progress_tracker.update_progress(job_id, current_step="generating_pca_2d", progress=90)
+        # pca_2d_coords = None
+        # try:
+        #     pca_2d = PCA(n_components=2)
+        #     pca_2d_coords = pca_2d.fit_transform(ordered_vectors).tolist()
+        #     logger.info(f"[Job {job_id}] Generated PCA 2D coordinates.")
+        # except Exception as pca_err:
+        #      logger.warning(f"[Job {job_id}] PCA 2D failed: {pca_err}")
+
+
+        # # Create Visualization records for each row and each method
+        # logger.info(f"[Job {job_id}] Storing visualization records.")
+        # visualizations_to_add = []
+        # for i, embedding_record in enumerate(embeddings_for_vis):
+        #     row_cluster = clusters[i] if clusters else None
+
+        #     # UMAP 2D Visualization Record
+        #     if umap_2d_coords:
+        #         vis_umap_2d = models.Visualization(
+        #             file_id=file_id,
+        #             embedding_id=embedding_record.embedding_id,
+        #             row_id=embedding_record.row_id,
+        #             method="umap",
+        #             dimensions=2,
+        #             coordinates=umap_2d_coords[i], # Store coordinate for this row
+        #             clusters=row_cluster # Store cluster label for this row (using plural column name)
+        #         )
+        #         visualizations_to_add.append(vis_umap_2d)
+
+        #     # UMAP 3D Visualization Record
+        #     if umap_3d_coords:
+        #         vis_umap_3d = models.Visualization(
+        #             file_id=file_id,
+        #             embedding_id=embedding_record.embedding_id,
+        #             row_id=embedding_record.row_id,
+        #             method="umap",
+        #             dimensions=3,
+        #             coordinates=umap_3d_coords[i],
+        #             clusters=row_cluster
+        #         )
+        #         visualizations_to_add.append(vis_umap_3d)
+
+        #     # PCA 2D Visualization Record
+        #     if pca_2d_coords:
+        #         vis_pca_2d = models.Visualization(
+        #             file_id=file_id,
+        #             embedding_id=embedding_record.embedding_id,
+        #             row_id=embedding_record.row_id,
+        #             method="pca",
+        #             dimensions=2,
+        #             coordinates=pca_2d_coords[i],
+        #             clusters=row_cluster
+        #         )
+        #         visualizations_to_add.append(vis_pca_2d)
+
+        # if visualizations_to_add:
+        #     db.add_all(visualizations_to_add)
+        #     db.commit()
+        #     logger.info(f"[Job {job_id}] Stored {len(visualizations_to_add)} visualization points.")
+        # else:
+        #     logger.warning(f"[Job {job_id}] No visualization points were generated or stored.")
 
 
         # --- Finalize ---

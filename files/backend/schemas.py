@@ -39,7 +39,7 @@ class File(FileBase):
     file_id: int
     original_filename: str
     project_id: int
-    columns: Optional[List[str]]
+    columns: Optional[Dict]
     created_at: datetime
     row_count: int
 
@@ -94,9 +94,35 @@ class Visualization(VisualizationBase):
     embedding_id: int
     file_id: int
     row_id: int
-    coordinate: List[float]
-    cluster: Optional[Dict]
+    coordinates: List[float]
+    clusters: int
     created_at: datetime
 
     class Config:
         orm_mode = True
+
+# --- ProjectJob Schemas ---
+class ProjectJobBase(BaseModel):
+    job_id: str
+    project_id: int
+    file_id: int
+
+class ProjectJobCreate(ProjectJobBase):
+    pass
+
+class ProjectJob(ProjectJobBase):
+    id: int
+    created_at: datetime
+
+    class Config:
+        orm_mode = True
+
+# --- Job Progress Details Schema for API Response ---
+class JobProgressDetails(BaseModel):
+    job_id: str
+    file_id: int
+    status: str
+    progress: Optional[float] = None # Progress might not always be a simple float (e.g. if error)
+    current_step: Optional[str] = None
+    error: Optional[Dict[str, Any]] = None
+    model_name: Optional[str] = None # Added model_name

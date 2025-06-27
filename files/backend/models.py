@@ -24,6 +24,7 @@ class Project(Base):
     
     owner = relationship("User", back_populates="projects")
     files = relationship("File", back_populates="project")
+    # project_jobs = relationship("ProjectJob", back_populates="project")
 
 class File(Base):
     __tablename__ = "files"
@@ -41,6 +42,7 @@ class File(Base):
     embeddings = relationship("Embedding", back_populates="file")
     rows = relationship("FileRow", back_populates="file")
     visualizations = relationship("Visualization", back_populates="file")
+    # project_jobs = relationship("ProjectJob", back_populates="file_link")
 
 
 class FileRow(Base):
@@ -85,9 +87,22 @@ class Visualization(Base):
     method = Column(String)  # umap, tsne, pca
     dimensions = Column(Integer)  # 2 or 3
     coordinates = Column(JSON)  # Store reduced coordinates (renamed from 'coordinate')
-    clusters = Column(JSON, nullable=True)  # Optional clustering information (renamed from 'cluster')
+    clusters =  Column(Integer) # Optional clustering information (renamed from 'cluster')
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     embedding = relationship("Embedding", back_populates="visualizations", uselist=False)
     file = relationship("File", back_populates="visualizations")
     row = relationship("FileRow", back_populates="visualizations", uselist=False)
+
+# New table to track job_ids associated with projects and files
+class ProjectJob(Base):
+    __tablename__ = "project_jobs"
+
+    id = Column(Integer, primary_key=True, index=True)
+    project_id = Column(Integer, ForeignKey("projects.project_id"))
+    file_id = Column(Integer, ForeignKey("files.file_id")) # Added file_id
+    job_id = Column(String, unique=True, index=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    # project = relationship("Project", back_populates="project_jobs")
+    # file_link = relationship("File", back_populates="project_jobs") # Renamed to avoid conflict with File.file

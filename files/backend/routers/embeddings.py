@@ -56,6 +56,15 @@ async def trigger_embedding_generation( # Renamed function
     job_id = str(uuid.uuid4())
     logger.info(f"Generated job ID {job_id} for file {file_id}")
 
+    # Create ProjectJob entry
+    project_job_entry = models.ProjectJob(
+        project_id=file.project_id, 
+        file_id=file.file_id,
+        job_id=job_id
+    )
+    db.add(project_job_entry)
+    # We'll commit after enqueueing successfully or handle rollback if enqueue fails
+
     # Initialize progress tracking
     progress_tracker.set_progress(job_id, {
         "job_id": job_id,
@@ -79,8 +88,11 @@ async def trigger_embedding_generation( # Renamed function
             job_id=job_id, # Pass job_id to RQ for identification
             job_timeout="2h" # Increased timeout
         )
-        logger.info(f"Enqueued job {job_id} for file {file_id}")
+        db.commit() # Commit ProjectJob entry after successful enqueue
+        db.refresh(project_job_entry)
+        logger.info(f"Enqueued job {job_id} for file {file_id} and saved ProjectJob entry")
     except Exception as e:
+        db.rollback() # Rollback ProjectJob entry if enqueue fails
         logger.error(f"Failed to enqueue job {job_id}: {e}", exc_info=True)
         progress_tracker.update_progress(job_id, status="failed", error={"error": "Failed to enqueue task"})
         raise HTTPException(status_code=500, detail="Failed to enqueue embedding generation task")
@@ -134,3 +146,85 @@ async def get_job_progress( # Renamed function
 
     logger.debug(f"Returning progress for job {job_id}: {progress}")
     return progress
+
+@router.get("/projects/{project_id}/jobs", response_model=List[schemas.JobProgressDetails])
+async def list_project_job_progress(
+    project_id: int,
+    current_user: schemas.User = Depends(auth.get_current_user),
+    db: Session = Depends(database.get_db)
+):
+    """
+    Lists all job progress details for a given project belonging to the current user.
+    Handles cases where job progress might not be found in Redis (e.g., due to key expiry).
+    """
+    logger.info(f"User {current_user.user_id} requesting job progress for project {project_id}")
+
+    # Verify project exists and belongs to the user
+    project = db.query(models.Project).filter(
+        models.Project.project_id == project_id,
+        models.Project.user_id == current_user.user_id
+    ).first()
+
+    if not project:
+        logger.warning(f"Project {project_id} not found for user {current_user.user_id}")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
+
+    # Get all job entries for this project
+    project_jobs = db.query(models.ProjectJob).filter(models.ProjectJob.project_id == project_id).all()
+
+    if not project_jobs:
+        logger.info(f"No jobs found for project {project_id}")
+        return []
+
+    job_progress_list: List[schemas.JobProgressDetails] = []
+
+    for pj_entry in project_jobs:
+        job_id = pj_entry.job_id
+        file_id = pj_entry.file_id
+        progress_data = progress_tracker.get_progress(job_id)
+
+        if progress_data:
+            job_detail = schemas.JobProgressDetails(
+                job_id=job_id,
+                file_id=file_id,
+                status=progress_data.get("status", "unknown"),
+                progress=progress_data.get("progress"),
+                current_step=progress_data.get("current_step"),
+                error=progress_data.get("error"),
+                model_name=progress_data.get("model_name"),
+            )
+        else:
+            # Handle case where progress is not in Redis (e.g., expired or never set post-failure)
+            logger.warning(f"Progress not found in Redis for job_id: {job_id} (file_id: {file_id}, project_id: {project_id}). Potentially expired or task failed before init.")
+            # Check RQ for job status if not in tracker
+            job_status_in_rq = "unknown"
+            rq_error_details = None
+            model_name_from_db = None # Placeholder, ideally could be fetched or assumed if needed
+
+            try:
+                rq_job = tasks.queue.fetch_job(job_id)
+                if rq_job:
+                    job_status_in_rq = rq_job.get_status()
+                    if rq_job.is_failed:
+                        job_status_in_rq = "failed_in_queue"
+                        rq_error_details = {"error": "Job failed in RQ", "details": rq_job.exc_info}
+                    # Attempt to get model_name if available (might not be easily accessible from failed/old jobs)
+                    # For this example, we'll assume it might have been in original progress_data if it existed
+
+            except Exception as e:
+                logger.error(f"Error fetching job {job_id} from RQ: {e}")
+                job_status_in_rq = "error_fetching_rq_status"
+
+            job_detail = schemas.JobProgressDetails(
+                job_id=job_id,
+                file_id=file_id,
+                status=f"progress_unavailable ({job_status_in_rq})",
+                progress=None,
+                current_step="unknown",
+                error=rq_error_details if rq_error_details else "Progress data not found in tracker.",
+                model_name=model_name_from_db # Or keep as None
+            )
+        job_progress_list.append(job_detail)
+
+    logger.info(f"Returning {len(job_progress_list)} job progress entries for project {project_id}")
+    return job_progress_list

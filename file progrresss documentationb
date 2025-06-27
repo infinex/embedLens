@@ -1,0 +1,104 @@
+UI Product Design Specification: Project Overview (Map Creation Loading State)
+
+1. Overview
+
+This specification describes the "Overview" tab UI for a project that is currently undergoing map creation. The primary purpose of this view is to inform the user about the ongoing process, its progress, and the estimated completion time, while providing access to project settings and eventual access to the completed map.
+
+2. Screen: Project Overview (Map Creation In Progress)
+
+2.1. Layout:
+
+Header Area: Located at the top of the screen, containing primary navigation tabs.
+Project Header Area: Below the header, displaying the project's key information and primary action button.
+Main Content Area: Occupies the central part of the screen, dedicated to displaying the map creation status and progress. The content within this area is centered vertically and horizontally within a distinct container.
+2.2. Components:
+
+2.2.1. Header Navigation
+
+Element: Tabs
+Labels: "OVERVIEW", "SETTINGS"
+Behavior:
+Clicking a tab navigates the user to the respective section of the project.
+The currently active tab ("OVERVIEW" in this state) is visually highlighted (e.g., underlined, different text color).
+State: "OVERVIEW" is active.
+2.2.2. Project Header Area
+
+Element: Project Title
+
+Content: "hacker-news-posts" (Dynamic, reflects the project name)
+
+Appearance: Large, prominent text.
+
+Element: Project Identifier/URL
+
+Content: "nearest.gypsum.8|hacker-news-posts" (Dynamic, represents the project's identifier/location)
+
+Appearance: Smaller text below the title. Includes an external link icon, suggesting it's a clickable link to the project's resource.
+
+Element: Visibility Status Label & Icon
+
+Content: "public" (Dynamic, indicates project visibility)
+
+Icon: Globe icon.
+
+Appearance: Small text with an accompanying icon, positioned next to the project identifier.
+
+Element: "Open Map" Button
+
+Label: "Open Map"
+
+Behavior:
+
+This button should be disabled or hidden while the map creation is in progress. (Based on the image, it is visible but its clickable state is not explicitly shown - Design Decision Required: Should this button be disabled or hidden during creation? Assuming disabled is the intent if visible).
+Once the map creation is complete and the map is ready, this button becomes enabled and clicking it navigates the user to the map visualization.
+Appearance: Rectangular button with rounded corners and a light background color.
+
+2.2.3. Main Content Area (Map Creation Status)
+
+Container: White card with rounded corners and a subtle shadow. This visually separates the status information from the rest of the page.
+
+Element: Status Message
+
+Content: "Map creation in progress"
+
+Appearance: Large, centered text within the container.
+
+Element: Progress Bar
+
+Type: Linear progress bar.
+
+Segments/Labels: "Creation", "Upload", "Map Ready"
+
+Behavior:
+
+Visually indicates the current stage and overall progress of the map creation process.
+Segments light up or change color as they are completed.
+The progress indicator moves along the bar within the active segment.
+State (as per image): "Creation" segment is filled/completed. The progress indicator is within the "Upload" segment, indicating that phase is currently active. "Map Ready" is not yet reached.
+
+Element: Estimated Time
+
+Label: "Estimated map build time"
+
+Content: "~ 4 min" (Dynamic, based on system estimation)
+
+Appearance: Smaller text centered below the progress bar.
+
+3. States
+
+This specification describes the "Map Creation In Progress" state. Other potential states for the Overview tab include:
+
+Initial State: Before creation starts (e.g., prompt to start creation).
+Map Ready State: Map creation is complete, the "Open Map" button is enabled, and the progress indicator is at "Map Ready".
+Error State: If map creation fails, displaying an error message and potentially options to retry.
+4. Interactions
+
+Users can navigate to "SETTINGS" using the header tabs at any time.
+Users wait on this screen while the map is being created. The UI provides visual feedback on the progress.
+Once creation is complete, the UI should transition to the "Map Ready" state, enabling the "Open Map" button.
+5. Visual Style
+
+The UI uses a clean, minimalist aesthetic.
+Typography appears to be simple and readable.
+Colors are muted, with a focus on functionality.
+The progress bar and status text use a distinct color (appears green or olive) to highlight the process information.
