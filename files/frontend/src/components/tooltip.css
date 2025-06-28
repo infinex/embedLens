@@ -180,3 +180,238 @@
   border-radius: 3px;
   text-align: center;
 }
+
+/* Animation for sidebar slide-in */
+@keyframes slideInFromRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Main layout grid responsiveness */
+.main-layout-container {
+  transition: grid-template-columns 0.3s ease;
+}
+
+.visualization-content {
+  transition: grid-template-columns 0.3s ease;
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 1200px) {
+  .main-layout-container {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .controls-sidebar {
+    position: fixed !important;
+    top: 0;
+    left: -100%;
+    width: 280px !important;
+    height: 100vh;
+    z-index: 1001;
+    transition: left 0.3s ease;
+    overflow-y: auto;
+  }
+  
+  .controls-sidebar.mobile-open {
+    left: 0;
+  }
+  
+  .visualization-content {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .point-details-sidebar {
+    position: fixed !important;
+    top: 0;
+    right: -100%;
+    width: 280px !important;
+    height: 100vh;
+    z-index: 1001;
+    transition: right 0.3s ease;
+  }
+  
+  .point-details-sidebar.mobile-open {
+    right: 0;
+  }
+}
+
+/* Control section styling */
+.control-section {
+  padding: 12px;
+  border: 1px solid #f0f0f0;
+  border-radius: 6px;
+  background: #fafafa;
+  transition: border-color 0.2s ease;
+}
+
+.control-section:hover {
+  border-color: #d9d9d9;
+}
+
+.control-section + .control-section {
+  margin-top: 8px;
+}
+
+/* Enhanced controls sidebar */
+.controls-sidebar {
+  transition: all 0.3s ease;
+}
+
+.controls-sidebar:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Modern responsive enhancements */
+.embedding-visualization-layout {
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+/* Smooth sidebar transitions */
+.ant-layout-sider {
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1) !important;
+}
+
+.ant-layout-sider-collapsed {
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1) !important;
+}
+
+/* Mobile drawer enhancements */
+.ant-drawer-content-wrapper {
+  transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1) !important;
+}
+
+/* Card hover effects */
+.ant-card {
+  transition: all 0.2s ease-in-out;
+}
+
+.ant-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+/* Button hover enhancements */
+.ant-btn {
+  transition: all 0.2s ease-in-out;
+}
+
+.ant-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Loading state improvements */
+.loading-overlay {
+  backdrop-filter: blur(4px);
+  transition: all 0.3s ease;
+}
+
+/* Progress animation */
+.ant-progress-line-path {
+  transition: stroke-dasharray 0.3s ease, stroke-dashoffset 0.3s ease;
+}
+
+/* Responsive grid system */
+@media (max-width: 768px) {
+  .mobile-controls-overlay {
+    position: fixed;
+    top: 1rem;
+    left: 1rem;
+    right: 1rem;
+    z-index: 10;
+    display: flex;
+    justify-content: space-between;
+    pointer-events: none;
+  }
+  
+  .mobile-controls-overlay .ant-btn {
+    pointer-events: auto;
+    backdrop-filter: blur(8px);
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1199px) {
+  .tablet-layout {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    height: 100vh;
+  }
+  
+  .tablet-sider-collapsed {
+    grid-template-columns: 80px 1fr auto;
+  }
+}
+
+@media (min-width: 1200px) {
+  .desktop-layout {
+    display: grid;
+    grid-template-columns: 320px 1fr 320px;
+    height: 100vh;
+  }
+}
+
+/* Smooth state transitions */
+.visualization-container {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.visualization-container.loading {
+  opacity: 0.7;
+  transform: scale(0.98);
+}
+
+/* Enhanced tooltip styles */
+.label-tooltip {
+  animation: fadeInUp 0.2s ease-out;
+}
+
+.minimal-tooltip {
+  animation: fadeInUp 0.2s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Focus states for accessibility */
+.ant-btn:focus,
+.ant-select:focus,
+.ant-radio-group:focus-within {
+  outline: 2px solid #1890ff;
+  outline-offset: 2px;
+}
+
+/* Custom scrollbars */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
