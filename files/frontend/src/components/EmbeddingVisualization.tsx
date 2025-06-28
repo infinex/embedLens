@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { Scatterplot } from 'deepscatter';
-import { Select, Radio, Spin, Button, Progress, Alert, Space, Typography } from 'antd';
+import { Select, Radio, Spin, Button, Progress, Alert, Space, Typography, Switch } from 'antd';
 import { DownloadOutlined } from '@ant-design/icons';
 import { useParams } from 'react-router-dom';
 import { tableFromArrays } from 'apache-arrow';
@@ -21,6 +21,11 @@ const DIMENSIONS = [
   { label: '2D', value: 2 },
   { label: '3D', value: 3 },
 ];
+const LABEL_TYPES = [
+  { label: 'Cluster Names', value: 'cluster' },
+  { label: 'Point Counts', value: 'count' },
+  { label: 'Coordinates', value: 'coords' },
+];
 
 // --- Interfaces ---
 interface Point {
@@ -28,6 +33,15 @@ interface Point {
   y: number;
   z?: number;
   cluster: number;
+}
+
+interface ClusterLabel {
+  x: number;
+  y: number;
+  z?: number;
+  cluster: number;
+  label: string;
+  pointCount: number;
 }
 
 interface VisualizationData {
@@ -56,6 +70,9 @@ interface HoveredPoint extends Point {
   metadata?: Record<string, any>;
   title?: string;
   id?: string | number;
+  isLabel?: boolean;
+  labelText?: string;
+  pointCount?: number;
 }
 
 // --- Helper Functions ---
@@ -72,6 +89,101 @@ const transformVisualizationToPoints = (vis: VisualizationData[]): Point[] => {
   }));
 };
 
+const generateMockLabels = (points: Point[], labelType: 'cluster' | 'count' | 'coords'): ClusterLabel[] => {
+  if (!points || points.length === 0) return [];
+  
+  // Group points by cluster
+  const clusterGroups = points.reduce((acc, point) => {
+    if (!acc[point.cluster]) {
+      acc[point.cluster] = [];
+    }
+    acc[point.cluster].push(point);
+    return acc;
+  }, {} as Record<number, Point[]>);
+  
+  // Calculate centroid and generate labels for each cluster
+  return Object.entries(clusterGroups).map(([clusterStr, clusterPoints]) => {
+    const cluster = parseInt(clusterStr);
+    const count = clusterPoints.length;
+    
+    // Calculate centroid
+    const centroid = {
+      x: clusterPoints.reduce((sum, p) => sum + p.x, 0) / count,
+      y: clusterPoints.reduce((sum, p) => sum + p.y, 0) / count,
+      z: clusterPoints[0].z !== undefined 
+        ? clusterPoints.reduce((sum, p) => sum + (p.z || 0), 0) / count 
+        : undefined
+    };
+    
+    // Generate label text based on type
+    let label: string;
+    switch (labelType) {
+      case 'cluster':
+        label = `Cluster ${cluster}`;
+        break;
+      case 'count':
+        label = `C${cluster} (${count})`;
+        break;
+      case 'coords':
+        label = `C${cluster} [${centroid.x.toFixed(1)}, ${centroid.y.toFixed(1)}]`;
+        break;
+      default:
+        label = `Cluster ${cluster}`;
+    }
+    
+    return {
+      ...centroid,
+      cluster,
+      label,
+      pointCount: count
+    };
+  });
+};
+
+const addLabelsToPlot = async (scatterplot: Scatterplot, labels: ClusterLabel[]): Promise<void> => {
+  try {
+    // Convert labels to a format that Deepscatter can use
+    // Create a mock GeoJSON-like structure for the labels
+    const labelData = {
+      type: "FeatureCollection",
+      features: labels.map(label => ({
+        type: "Feature",
+        properties: {
+          label: label.label,
+          cluster: label.cluster,
+          pointCount: label.pointCount
+        },
+        geometry: {
+          type: "Point",
+          coordinates: [label.x, label.y, label.z || 0]
+        }
+      }))
+    };
+    
+    // Create a data URL for the label data
+    const dataUrl = 'data:application/json,' + encodeURIComponent(JSON.stringify(labelData));
+    
+    // Use Deepscatter's label functionality
+    // This follows the pattern from the Vietnam example
+    await scatterplot.add_labels_from_url(
+      dataUrl,
+      'cluster_labels', // name for this label set
+      'label', // field containing the label text
+      undefined, // no size field
+      { 
+        draggable_labels: false, 
+        useColorScale: false,
+        label_size: 12,
+        label_color: '#000000'
+      }
+    );
+  } catch (error) {
+    console.warn('Failed to add labels to plot:', error);
+    // Fallback: try to add labels directly if the URL method doesn't work
+    // This is a backup approach
+  }
+};
+
 // --- Component ---
 const EmbeddingVisualization: React.FC = () => {
   const { embeddingId } = useParams<{ embeddingId: string }>();
@@ -86,6 +198,11 @@ const EmbeddingVisualization: React.FC = () => {
 
   const [selectedMethod, setSelectedMethod] = useState<string>(METHODS[0].value);
   const [selectedDimensions, setSelectedDimensions] = useState<number>(DIMENSIONS[0].value);
+
+  // Label-related state
+  const [showLabels, setShowLabels] = useState<boolean>(true);
+  const [labelType, setLabelType] = useState<'cluster' | 'count' | 'coords'>('cluster');
+  const [clusterLabels, setClusterLabels] = useState<ClusterLabel[]>([]);
 
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false); // For backend processing state
@@ -293,9 +410,37 @@ const EmbeddingVisualization: React.FC = () => {
     };
   }, [embeddingId, selectedMethod, selectedDimensions, isProcessing]); // Re-fetch if params change or processing finishes
 
+  // Effect: Generate cluster labels when points or label type changes
+  useEffect(() => {
+    if (points.length > 0) {
+      const labels = generateMockLabels(points, labelType);
+      setClusterLabels(labels);
+    } else {
+      setClusterLabels([]);
+    }
+  }, [points, labelType]);
+
   // New tooltip handler function
   const handleTooltip = (point: Point): string => {
-    setHoveredPoint(point);
+    // Check if this might be a label by comparing with cluster centroids
+    const matchingLabel = clusterLabels.find(label => 
+      Math.abs(label.x - point.x) < 0.01 && 
+      Math.abs(label.y - point.y) < 0.01 &&
+      label.cluster === point.cluster
+    );
+    
+    const enhancedPoint: HoveredPoint = {
+      ...point,
+      isLabel: !!matchingLabel,
+      labelText: matchingLabel?.label,
+      pointCount: matchingLabel?.pointCount
+    };
+    
+    setHoveredPoint(enhancedPoint);
+    
+    if (matchingLabel) {
+      return `<div class="label-tooltip">Label: ${matchingLabel.label}</div>`;
+    }
     
     return `<div class="minimal-tooltip">Cluster ${point.cluster}</div>`;
   };
@@ -367,15 +512,30 @@ const EmbeddingVisualization: React.FC = () => {
           scatterplotInstanceRef.current =  new Scatterplot(`#${CHART_PARENT_ID}`);
           scatterplotInstanceRef.current.tooltip_html = handleTooltip;
 
-          await scatterplotInstanceRef.current.plotAPI(plotConfig).finally(async () => {
-            scatterplotInstanceRef.current.click_function = handlePointClick;
-          });;
+          await scatterplotInstanceRef.current.plotAPI(plotConfig);
+          
+          // Add labels if enabled and available
+          if (showLabels && clusterLabels.length > 0) {
+            await addLabelsToPlot(scatterplotInstanceRef.current, clusterLabels);
+          }
+          
+          scatterplotInstanceRef.current.click_function = handlePointClick;
           
         } else {
           // Update existing instance
-          // Use plotAPI for updates if available and appropriate, otherwise re-init might be needed
-          // Assuming plotAPI handles updates efficiently based on the docs/examples
           await scatterplotInstanceRef.current.plotAPI(plotConfig);
+          
+          // Update labels
+          if (showLabels && clusterLabels.length > 0) {
+            await addLabelsToPlot(scatterplotInstanceRef.current, clusterLabels);
+          } else {
+            // Clear labels if disabled
+            try {
+              await scatterplotInstanceRef.current.clear_labels?.();
+            } catch (e) {
+              console.warn('Failed to clear labels:', e);
+            }
+          }
         }
 
       } catch (error) {
@@ -397,7 +557,7 @@ const EmbeddingVisualization: React.FC = () => {
       // not necessarily on every re-run of this effect if just parameters change.
     };
 
-  }, [filteredPoints, selectedDimensions, isLoadingData, points.length]); // Dependencies: Run when data/filters change or loading completes
+  }, [filteredPoints, selectedDimensions, isLoadingData, points.length, showLabels, clusterLabels]); // Dependencies: Run when data/filters change or loading completes
 
   // Effect: Component Unmount Cleanup
   useEffect(() => {
@@ -496,10 +656,16 @@ const EmbeddingVisualization: React.FC = () => {
             {hoveredPoint ? (
               <>
                 <Typography.Title level={4} style={{ marginTop: 0 }}>
-                  Cluster {hoveredPoint.cluster}
+                  {hoveredPoint.isLabel ? 'Cluster Label' : `Cluster ${hoveredPoint.cluster}`}
                 </Typography.Title>
                 
-                {hoveredPoint.title && (
+                {hoveredPoint.isLabel && hoveredPoint.labelText && (
+                  <Typography.Title level={5} style={{ marginTop: 0, color: '#1890ff' }}>
+                    {hoveredPoint.labelText}
+                  </Typography.Title>
+                )}
+                
+                {hoveredPoint.title && !hoveredPoint.isLabel && (
                   <Typography.Title level={5} style={{ marginTop: 0 }}>
                     {hoveredPoint.title}
                   </Typography.Title>
@@ -509,6 +675,24 @@ const EmbeddingVisualization: React.FC = () => {
                   Coordinates: ({hoveredPoint.x.toFixed(3)}, {hoveredPoint.y.toFixed(3)}
                   {hoveredPoint.z !== undefined ? `, ${hoveredPoint.z.toFixed(3)}` : ''})
                 </Typography.Text>
+                
+                {hoveredPoint.isLabel && hoveredPoint.pointCount && (
+                  <div style={{ marginTop: '15px' }}>
+                    <Typography.Title level={5}>Label Information</Typography.Title>
+                    <div style={{ marginBottom: '5px' }}>
+                      <Typography.Text strong>Cluster ID:</Typography.Text>{' '}
+                      <Typography.Text>{hoveredPoint.cluster}</Typography.Text>
+                    </div>
+                    <div style={{ marginBottom: '5px' }}>
+                      <Typography.Text strong>Points in Cluster:</Typography.Text>{' '}
+                      <Typography.Text>{hoveredPoint.pointCount}</Typography.Text>
+                    </div>
+                    <div style={{ marginBottom: '5px' }}>
+                      <Typography.Text strong>Label Type:</Typography.Text>{' '}
+                      <Typography.Text>{LABEL_TYPES.find(lt => lt.value === labelType)?.label}</Typography.Text>
+                    </div>
+                  </div>
+                )}
                 
                 {hoveredPoint.metadata && Object.keys(hoveredPoint.metadata).length > 0 && (
                   <div style={{ marginTop: '15px' }}>
@@ -600,6 +784,33 @@ const EmbeddingVisualization: React.FC = () => {
                   loading={isLoadingData}
                 />
               </Space>
+              <div className="label-controls-section">
+                <Text strong>Labels:</Text>
+                <div className="label-switch-container">
+                  <Text>Show Labels</Text>
+                  <Switch
+                    checked={showLabels}
+                    onChange={setShowLabels}
+                    disabled={isLoadingData || points.length === 0}
+                    size="small"
+                  />
+                </div>
+                <div className="label-type-buttons">
+                  <Radio.Group
+                    options={LABEL_TYPES}
+                    onChange={(e) => setLabelType(e.target.value)}
+                    value={labelType}
+                    optionType="button"
+                    buttonStyle="solid"
+                    disabled={isLoadingData || !showLabels || points.length === 0}
+                    style={{ width: '100%' }}
+                    size="small"
+                  />
+                </div>
+                <div className="label-stats">
+                  {clusterLabels.length} labels generated
+                </div>
+              </div>
               <Space direction="vertical" style={{ width: '100%'}}>
                 <Text strong>Export Data:</Text>
                 <Button

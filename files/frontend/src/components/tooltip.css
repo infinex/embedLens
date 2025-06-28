@@ -100,3 +100,83 @@
   word-break: break-word;
   margin-top: 3px;
 }
+
+/* Label-specific styles */
+.label-tooltip {
+  padding: 6px 10px;
+  background: rgba(24, 144, 255, 0.9);
+  color: white;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  pointer-events: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.cluster-label-display {
+  background: #f0f8ff;
+  border: 1px solid #d6e7ff;
+  border-radius: 6px;
+  padding: 8px;
+  margin-bottom: 10px;
+}
+
+.cluster-label-text {
+  font-weight: 600;
+  color: #1890ff;
+  font-size: 14px;
+}
+
+.label-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.label-info-item {
+  background: #fafafa;
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.label-info-key {
+  font-weight: 600;
+  color: #666;
+  margin-bottom: 2px;
+}
+
+.label-info-value {
+  color: #333;
+}
+
+/* Controls section styling */
+.label-controls-section {
+  border: 1px solid #e8f4ff;
+  background: #f9fcff;
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.label-switch-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.label-type-buttons {
+  margin-top: 8px;
+}
+
+.label-stats {
+  font-size: 11px;
+  color: #666;
+  margin-top: 6px;
+  padding: 4px 6px;
+  background: rgba(24, 144, 255, 0.1);
+  border-radius: 3px;
+  text-align: center;
+}
