@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Progress, Typography, Alert, Spin, Card, Button, Space } from 'antd';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { EyeOutlined, LinkOutlined } from '@ant-design/icons';
 
-const { Title, Text, Link } = Typography;
+const { Title, Text } = Typography;
 
 interface JobProgress {
   job_id: string;
@@ -48,13 +48,13 @@ const JobProgressTracker: React.FC<JobProgressTrackerProps> = ({
     } else if (redirectCountdown === 0) {
       handleRedirectToVisualization();
     }
-  }, [redirectCountdown]);
+  }, [redirectCountdown, handleRedirectToVisualization]);
 
-  const handleRedirectToVisualization = () => {
+  const handleRedirectToVisualization = useCallback(() => {
     if (progressData?.file_id) {
       navigate(`/embeddings/${progressData.file_id}`);
     }
-  };
+  }, [progressData?.file_id, navigate]);
 
   const getVisualizationUrl = () => {
     if (progressData?.file_id) {
@@ -110,15 +110,16 @@ const JobProgressTracker: React.FC<JobProgressTrackerProps> = ({
           return 'stop'; // Signal to stop polling
         }
 
-      } catch (e: any) {
+      } catch (e: unknown) {
         if (!isMounted) return;
         console.error("Failed to fetch job progress:", e);
-        setError(e.message || "Failed to load job progress.");
+        const errorMessage = e instanceof Error ? e.message : "Failed to load job progress.";
+        setError(errorMessage);
         // Pass error to callback
         if (progressData && onJobError) { 
-            onJobError({...progressData, status: 'fetch_error', error: { error: e.message || "Failed to load job progress."}});
+            onJobError({...progressData, status: 'fetch_error', error: { error: errorMessage }});
         } else if (onJobError) {
-            onJobError({ job_id: jobId, file_id: 0, status: "fetch_error", error: { error: e.message || "Failed to load job progress." } });
+            onJobError({ job_id: jobId, file_id: 0, status: "fetch_error", error: { error: errorMessage } });
         }
       } finally {
         if (isMounted && !progressData) setLoading(false); // Ensure loading is false if initial load failed

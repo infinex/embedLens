@@ -126,3 +126,24 @@ class JobProgressDetails(BaseModel):
     current_step: Optional[str] = None
     error: Optional[Dict[str, Any]] = None
     model_name: Optional[str] = None # Added model_name
+
+
+
+class VisualizationCheckResponse(BaseModel):
+    # File details
+    file_id: int
+    file_name: str
+    original_filename: str
+    project_id: int
+    columns: Optional[Dict]
+    created_at: datetime
+    row_count: int
+    
+    # Visualization availability
+    has_visualizations: bool
+    available_methods: List[str]
+    available_dimensions: List[int]
+    visualization_count: int
+    
+    class Config:
+        from_attributes = True

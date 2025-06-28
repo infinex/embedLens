@@ -1,0 +1,160 @@
+
+> vite@0.0.0 lint
+> eslint .
+
+
+/app/deepscatter/dist/Deeptable.d.ts
+  170:22  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  194:92  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/deepscatter/dist/aesthetics/ScaledAesthetic.d.ts
+  16:28  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/deepscatter/dist/aesthetics/StatefulAesthetic.d.ts
+  38:22  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/deepscatter/dist/deepscatter.js
+  28447:3  error  Definition for rule '@typescript-eslint/no-unused-vars' was not found  @typescript-eslint/no-unused-vars
+  28454:3  error  Definition for rule '@typescript-eslint/no-unused-vars' was not found  @typescript-eslint/no-unused-vars
+  28460:3  error  Definition for rule '@typescript-eslint/no-unused-vars' was not found  @typescript-eslint/no-unused-vars
+
+/app/deepscatter/dist/interaction.d.ts
+  23:77  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  23:83  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  23:88  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/deepscatter/dist/regl_rendering.d.ts
+  56:70  error  The `{}` ("empty object") type allows any non-nullish value, including literals like `0` and `""`.
+- If that's what you want, disable this lint rule with an inline comment or configure the 'allowObjectTypes' rule option.
+- If you want a type meaning "any object", you probably want `object` instead.
+- If you want a type meaning "any value", you probably want `unknown` instead  @typescript-eslint/no-empty-object-type
+
+/app/deepscatter/dist/scatterplot.d.ts
+  178:58  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/deepscatter/dist/selection.d.ts
+  277:51  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  296:28  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  296:36  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/deepscatter/dist/tile.d.ts
+  91:37  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  94:41  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/deepscatter/dist/tixrixqid.d.ts
+  24:93  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/deepscatter/src/Deeptable.ts
+   371:34  error    Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+  1021:7   warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unnecessary-type-assertion')
+
+/app/deepscatter/src/aesthetics/AestheticSet.ts
+   1:1  warning  Unused eslint-disable directive (no problems were reported from 'no-param-reassign')
+  62:7  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/restrict-template-expressions')
+
+/app/deepscatter/src/interaction.ts
+    1:1   warning  Unused eslint-disable directive (no problems were reported from 'no-underscore-dangle')
+    2:1   warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/unbound-method')
+   42:20  error    Unexpected any. Specify a different type                                                              @typescript-eslint/no-explicit-any
+   43:5   error    Unexpected any. Specify a different type                                                              @typescript-eslint/no-explicit-any
+   44:5   error    Unexpected any. Specify a different type                                                              @typescript-eslint/no-explicit-any
+  134:14  error    'x1' is never reassigned. Use 'const' instead                                                         prefer-const
+  387:15  error    'flatten' is assigned a value but never used                                                          @typescript-eslint/no-unused-vars
+
+/app/deepscatter/src/label_rendering.ts
+   1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unnecessary-type-assertion')
+  55:5  error    Definition for rule 'unicorn/prefer-ternary' was not found                                                           unicorn/prefer-ternary
+
+/app/deepscatter/src/regl_rendering.ts
+     1:1   warning  Unused eslint-disable directive (no problems were reported from 'no-underscore-dangle')
+    46:1   error    Definition for rule 'import/prefer-default-export' was not found                         import/prefer-default-export
+   107:5   error    Expected an assignment or function call and instead saw an expression                    @typescript-eslint/no-unused-expressions
+  1370:15  error    '_' is assigned a value but never used                                                   @typescript-eslint/no-unused-vars
+
+/app/deepscatter/src/rendering.ts
+  1:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unnecessary-type-assertion')
+  2:1  warning  Unused eslint-disable directive (no problems were reported from 'no-underscore-dangle')
+
+/app/deepscatter/src/selection.ts
+     1:1  warning  Unused eslint-disable directive (no problems were reported from 'no-constant-condition')
+   896:7  error    Expected an assignment or function call and instead saw an expression                     @typescript-eslint/no-unused-expressions
+  1041:5  error    'name' is assigned a value but never used                                                 @typescript-eslint/no-unused-vars
+
+/app/deepscatter/src/utilityFunctions.ts
+  111:9  error  Unexpected aliasing of 'this' to local variable  @typescript-eslint/no-this-alias
+  145:9  error  Unexpected aliasing of 'this' to local variable  @typescript-eslint/no-this-alias
+  156:9  error  Unexpected aliasing of 'this' to local variable  @typescript-eslint/no-this-alias
+  167:9  error  Unexpected aliasing of 'this' to local variable  @typescript-eslint/no-this-alias
+
+/app/deepscatter/tests/basic_display.spec.ts
+  19:11  error  'encoding' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/app/src/api/projectJobsApi.ts
+  57:28  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/src/components/AddDataWizard/AddDataWizard.tsx
+  103:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  128:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/src/components/AddDataWizard/PreviewFieldsStep.tsx
+   2:58  error  'Tooltip' is defined but never used        @typescript-eslint/no-unused-vars
+   6:16  error  'Text' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  50:34  error  Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+
+/app/src/components/AddDataWizard/SelectSourceStep.tsx
+  83:20  error  'file' is defined but never used  @typescript-eslint/no-unused-vars
+
+/app/src/components/AddDataWizard/types.ts
+  22:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/app/src/components/EmbeddingVisualization.tsx
+   56:29  error    Unexpected any. Specify a different type                                                                     @typescript-eslint/no-explicit-any
+   78:9   error    'chartParentId' is assigned a value but never used                                                           @typescript-eslint/no-unused-vars
+  222:6   warning  React Hook useEffect has a missing dependency: 'progress'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/app/src/components/FileManager.tsx
+  376:15  error  Parsing error: '{' or JSX element expected
+
+/app/src/components/JobProgressTracker.tsx
+    3:10  error    'useParams' is defined but never used                                                                                             @typescript-eslint/no-unused-vars
+    6:22  error    'Link' is assigned a value but never used                                                                                         @typescript-eslint/no-unused-vars
+   51:6   warning  React Hook useEffect has a missing dependency: 'handleRedirectToVisualization'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  113:19  error    Unexpected any. Specify a different type                                                                                          @typescript-eslint/no-explicit-any
+
+/app/src/components/ProcessingStatusHandler.tsx
+    3:10  error    'Spin' is defined but never used                                                                                    @typescript-eslint/no-unused-vars
+   45:21  error    'setAutoCheck' is assigned a value but never used                                                                   @typescript-eslint/no-unused-vars
+  101:6   warning  React Hook useEffect has a missing dependency: 'checkFileStatus'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  109:6   warning  React Hook useEffect has a missing dependency: 'checkFileStatus'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/app/src/components/ProjectDashboard.tsx
+  27:24  error  'FileData' is defined but never used  @typescript-eslint/no-unused-vars
+
+/app/src/components/VietnamMap.tsx
+    4:10  error    'select' is defined but never used                                                                                                                                                                                                                                                     @typescript-eslint/no-unused-vars
+   10:20  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                               @typescript-eslint/no-explicit-any
+   10:36  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                               @typescript-eslint/no-explicit-any
+   16:15  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                               @typescript-eslint/no-explicit-any
+   17:16  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                               @typescript-eslint/no-explicit-any
+   47:52  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                               @typescript-eslint/no-explicit-any
+  123:31  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                               @typescript-eslint/no-explicit-any
+  193:31  warning  The ref value 'scatterContainerRef.current' will likely have changed by the time this effect cleanup function runs. If this ref points to a node rendered by React, copy 'scatterContainerRef.current' to a variable inside the effect, and use that variable in the cleanup function  react-hooks/exhaustive-deps
+
+/app/src/components/main_bu.tsx
+   10:3   error    'ExclamationCircleOutlined' is defined but never used                                                             @typescript-eslint/no-unused-vars
+   11:3   error    'CheckCircleOutlined' is defined but never used                                                                   @typescript-eslint/no-unused-vars
+   12:3   error    'LoadingOutlined' is defined but never used                                                                       @typescript-eslint/no-unused-vars
+   56:7   error    'API_BASE' is assigned a value but never used                                                                     @typescript-eslint/no-unused-vars
+   70:6   warning  React Hook useEffect has a missing dependency: 'fetchProjects'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+  140:14  error    'err' is defined but never used                                                                                   @typescript-eslint/no-unused-vars
+  156:14  error    'err' is defined but never used                                                                                   @typescript-eslint/no-unused-vars
+
+/app/src/utils/api.ts
+  137:72  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  138:23  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  150:65  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  151:23  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 85 problems (69 errors, 16 warnings)
+  0 errors and 10 warnings potentially fixable with the `--fix` option.
+

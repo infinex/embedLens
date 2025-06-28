@@ -1,38 +1,63 @@
 import React from 'react';
-import { Routes, Route, useParams } from 'react-router-dom';
+import { Routes, Route, useParams, useNavigate } from 'react-router-dom';
 import { Layout } from 'antd';
 import EmbeddingVisualization from './components/EmbeddingVisualization';
-// import VietnamMap from './components/VietnamMap';
 import { AddDataWizard } from './components/AddDataWizard';
 import './App.css';
 import JobProgressTracker from './components/JobProgressTracker';
-import ProjectDashboard from './components/main';
+import ProjectDashboard from './components/ProjectDashboard';
+import FileManager from './components/FileManager';
+import ProcessingStatusHandler from './components/ProcessingStatusHandler';
+import NavigationBreadcrumb from './components/NavigationBreadcrumb';
 
 const { Content } = Layout;
 
 // Wrapper component to pass jobId from URL params to JobProgressTracker
 const JobProgressTrackerWrapper: React.FC = () => {
   const { jobId } = useParams<{ jobId: string }>();
-  // Ensure jobId is not undefined before passing, though route definition implies it will exist
   return <JobProgressTracker jobId={jobId || ''} />;
 };
 
-const App: React.FC = () => {
+// Wrapper component for AddDataWizard with navigation
+const AddDataWizardWrapper: React.FC = () => {
+  const navigate = useNavigate();
+  const { projectId } = useParams<{ projectId: string }>();
+  
+  const handleClose = () => {
+    navigate('/');
+  };
+
+  // If no projectId in URL, get from localStorage or default to 1
+  const selectedProjectId = projectId ? parseInt(projectId) : 
+    parseInt(localStorage.getItem('selectedProjectId') || '1');
+
+  return <AddDataWizard projectId={selectedProjectId} onClose={handleClose} />;
+};
+
+
+
+
+function App() {
+
   return (
+    <div className="App">
     <Layout>
-      <Content style={{ padding: '24px', minHeight: '100vh' }}>
+      <NavigationBreadcrumb />
+      <Content style={{ minHeight: '100vh' }}>
         <Routes>
+          <Route path="/" element={<ProjectDashboard />} />
+          <Route path="/project/:projectId" element={<FileManager />} />
           <Route path="/embeddings/:embeddingId" element={<EmbeddingVisualization />} />
-          <Route path="/add-data" element={<AddDataWizard projectId={1} onClose={() => console.log("Wizard closed")} />} />
-           <Route
-            path="/job/:jobId/progress"
-            element={<JobProgressTrackerWrapper />}
-          />
+          <Route path="/add-data" element={<AddDataWizardWrapper />} />
+          <Route path="/add-data/:projectId" element={<AddDataWizardWrapper />} />
+          <Route path="/job/:jobId/progress" element={<JobProgressTrackerWrapper />} />
+          <Route path="/file/:fileId/status" element={<ProcessingStatusHandler />} />
         </Routes>
-        <ProjectDashboard />
       </Content>
     </Layout>
+    </div>
   );
-};
+}
+
 
 export default App;

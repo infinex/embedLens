@@ -1,0 +1,102 @@
+/* Tooltip sidebar styling */
+.tooltip-sidebar {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 280px;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
+  border-left: 1px solid #ddd;
+  z-index: 1000;
+  padding: 15px;
+  overflow-y: auto;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  transition: transform 0.3s ease;
+  transform: translateX(0);
+}
+
+.tooltip-header {
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+}
+
+.tooltip-header h3 {
+  margin: 0 0 5px 0;
+  font-size: 18px;
+  color: #333;
+}
+
+.tooltip-header h4 {
+  margin: 0;
+  font-size: 14px;
+  color: #666;
+  font-weight: normal;
+}
+
+.tooltip-body {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.tooltip-section {
+  margin-bottom: 10px;
+}
+
+.tooltip-section h4 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  color: #444;
+}
+
+.coordinates {
+  font-family: monospace;
+  background: #f5f5f5;
+  padding: 6px;
+  border-radius: 4px;
+  font-size: 13px;
+  margin: 0;
+}
+
+.metadata-section {
+  max-height: 70%;
+  overflow-y: auto;
+}
+
+.metadata-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.metadata-item {
+  display: flex;
+  flex-direction: column;
+  padding: 6px;
+  background: #f9f9f9;
+  border-radius: 4px;
+  border-left: 3px solid #1890ff;
+}
+
+.minimal-tooltip {
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  border-radius: 4px;
+  font-size: 12px;
+  pointer-events: none;
+}
+
+.metadata-key {
+  font-weight: bold;
+  font-size: 12px;
+  color: #555;
+}
+
+.metadata-value {
+  font-size: 13px;
+  word-break: break-word;
+  margin-top: 3px;
+}

@@ -1,0 +1,46 @@
+.visualization-container {
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.controls {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 20px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.export-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.scatter-plot {
+  margin: 20px 0;
+  background: #fafafa;
+  transition: height 0.3s ease;
+}
+
+.filters {
+  margin-top: 16px;
+}
+
+.progress-container {
+  padding: 24px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.current-step {
+  margin-top: 12px;
+  text-transform: capitalize;
+  color: rgba(0, 0, 0, 0.65);
+}
+
+
+

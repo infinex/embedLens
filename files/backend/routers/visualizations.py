@@ -19,6 +19,69 @@ router = APIRouter(
     responses={404: {"description": "Not found"}}
 )
 
+@router.get("/file/{file_id}/check", response_model=schemas.VisualizationCheckResponse)
+async def check_file_visualizations(
+    file_id: int,
+    current_user: schemas.User = Depends(auth.get_current_user),
+    db: Session = Depends(database.get_db)
+):
+    """
+    Quick check to determine if file_id is valid and visualizations exist.
+    Returns detailed file info and available visualization methods and dimensions.
+    - **file_id**: ID of the file to check
+    """
+    logger.info(f"Checking visualizations availability for file {file_id}")
+    
+    # Verify user has access to the file and get full file details
+    file_record = db.query(models.File).join(models.Project).filter(
+        models.File.file_id == file_id,
+        models.Project.user_id == current_user.user_id
+    ).first()
+    
+    if not file_record:
+        logger.warning(f"File {file_id} not found or access denied for user {current_user.user_id}")
+        raise HTTPException(status_code=404, detail="File not found or access denied")
+    
+    # Check if any visualizations exist
+    has_visualizations = db.query(models.Visualization).filter(
+        models.Visualization.file_id == file_id
+    ).first() is not None
+    
+    available_methods = []
+    available_dimensions = []
+    visualization_count = 0
+    
+    if has_visualizations:
+        # Get distinct methods and dimensions available
+        methods_dims = db.query(
+            models.Visualization.method,
+            models.Visualization.dimensions
+        ).filter(
+            models.Visualization.file_id == file_id
+        ).distinct().all()
+        
+        available_methods = list(set([item.method for item in methods_dims]))
+        available_dimensions = list(set([item.dimensions for item in methods_dims]))
+        
+        # Get total visualization count
+        visualization_count = db.query(models.Visualization).filter(
+            models.Visualization.file_id == file_id
+        ).count()
+    
+    return schemas.VisualizationCheckResponse(
+        file_id=file_record.file_id,
+        file_name=file_record.filename,
+        original_filename=file_record.original_filename,
+        project_id=file_record.project_id,
+        columns=file_record.columns,
+        created_at=file_record.created_at,
+        row_count=file_record.row_count,
+        has_visualizations=has_visualizations,
+        available_methods=available_methods,
+        available_dimensions=sorted(available_dimensions),
+        visualization_count=visualization_count
+    )
+
 # Modified endpoint to fetch all points for a file/method/dimension
 @router.get("/file/{file_id}", response_model=List[schemas.Visualization])
 async def get_visualizations_for_file(
