@@ -101,8 +101,8 @@ const generateMockLabels = (points: Point[], labelType: 'cluster' | 'count' | 'c
     return acc;
   }, {} as Record<number, Point[]>);
   
-  // Calculate centroid and generate labels for each cluster
-  return Object.entries(clusterGroups).map(([clusterStr, clusterPoints]) => {
+  // Calculate centroid and generate initial labels for each cluster
+  const initialLabels = Object.entries(clusterGroups).map(([clusterStr, clusterPoints]) => {
     const cluster = parseInt(clusterStr);
     const count = clusterPoints.length;
     
@@ -138,6 +138,8 @@ const generateMockLabels = (points: Point[], labelType: 'cluster' | 'count' | 'c
       pointCount: count
     };
   });
+  
+  return initialLabels;
 };
 
 const addLabelsToPlot = async (scatterplot: Scatterplot, labels: ClusterLabel[]): Promise<void> => {
@@ -193,11 +195,13 @@ const EmbeddingVisualization: React.FC = () => {
   const [hoveredPoint, setHoveredPoint] = useState<HoveredPoint | null>(null);
   const [visualizationData, setVisualizationData] = useState<VisualizationData[]>([]);
   const [points, setPoints] = useState<Point[]>([]);
-  const [filteredPoints, setFilteredPoints] = useState<Point[]>([]);
   const [uniqueClusters, setUniqueClusters] = useState<number[]>([]);
 
   const [selectedMethod, setSelectedMethod] = useState<string>(METHODS[0].value);
   const [selectedDimensions, setSelectedDimensions] = useState<number>(DIMENSIONS[0].value);
+
+  // Cluster filtering state
+  const [selectedClusters, setSelectedClusters] = useState<number[]>([]);
 
   // Label-related state
   const [showLabels, setShowLabels] = useState<boolean>(true);
@@ -215,12 +219,35 @@ const EmbeddingVisualization: React.FC = () => {
 
   // --- Callbacks ---
   const handleFilterChange = useCallback((selectedClusterValues: number[]) => {
-    if (selectedClusterValues.length === 0) {
-      setFilteredPoints(points);
-    } else {
-      setFilteredPoints(points.filter(p => selectedClusterValues.includes(p.cluster)));
+    console.log('Filter changed:', selectedClusterValues);
+    setSelectedClusters(selectedClusterValues);
+  }, []);
+
+  const handleClearFilters = useCallback(() => {
+    console.log('Clearing filters - resetting to show all points');
+    setSelectedClusters([]);
+    
+    // Force plot reinitialization to ensure all points are shown
+    if (scatterplotInstanceRef.current) {
+      console.log('Destroying plot to force reinitialization after clearing filters');
+      scatterplotInstanceRef.current.destroy?.();
+      scatterplotInstanceRef.current = null;
     }
-  }, [points]);
+  }, []);
+
+  // Reset filters when data changes
+  useEffect(() => {
+    if (points.length > 0) {
+      // Reset selected clusters if they no longer exist in the new data
+      const currentClusters = new Set(points.map(p => p.cluster));
+      const validSelectedClusters = selectedClusters.filter(cluster => currentClusters.has(cluster));
+      
+      if (validSelectedClusters.length !== selectedClusters.length) {
+        console.log('Resetting invalid filters');
+        setSelectedClusters(validSelectedClusters);
+      }
+    }
+  }, [points, selectedClusters]);
 
   const handleExport = useCallback(async (format: 'csv' | 'json') => {
     if (!visualizationData?.visualization_id) {
@@ -376,13 +403,11 @@ const EmbeddingVisualization: React.FC = () => {
           setVisualizationData(vis); // Store the raw visualization data
           const transformedPoints = transformVisualizationToPoints(vis);
           setPoints(transformedPoints);
-          setFilteredPoints(transformedPoints); // Initially show all points
           setUniqueClusters(Array.from(new Set(transformedPoints.map(p => p.cluster))).sort((a, b) => a - b));
         } else {
           // No specific visualization found for this method/dimension
           setVisualizationData(null);
           setPoints([]);
-          setFilteredPoints([]);
           setUniqueClusters([]);
           // Optional: Set a specific warning/info message here if needed
         }
@@ -392,7 +417,6 @@ const EmbeddingVisualization: React.FC = () => {
           setError(err instanceof Error ? err.message : 'An unknown fetch error occurred.');
           setVisualizationData(null);
           setPoints([]);
-          setFilteredPoints([]);
           setUniqueClusters([]);
         }
       } finally {
@@ -410,10 +434,11 @@ const EmbeddingVisualization: React.FC = () => {
     };
   }, [embeddingId, selectedMethod, selectedDimensions, isProcessing]); // Re-fetch if params change or processing finishes
 
-  // Effect: Generate cluster labels when points or label type changes
+  // Effect: Generate cluster labels when points or label type change
   useEffect(() => {
     if (points.length > 0) {
       const labels = generateMockLabels(points, labelType);
+      // Always show all cluster labels regardless of point filtering
       setClusterLabels(labels);
     } else {
       setClusterLabels([]);
@@ -454,7 +479,7 @@ const EmbeddingVisualization: React.FC = () => {
   // Effect: Initialize and Update Scatterplot
   useEffect(() => {
     const container = plotContainerRef.current;
-    if (!container || isLoadingData || filteredPoints.length === 0) {
+    if (!container || isLoadingData || points.length === 0) {
       // If loading, no data, or container not ready, destroy existing plot if any
       if (scatterplotInstanceRef.current) {
         scatterplotInstanceRef.current.destroy?.();
@@ -477,7 +502,27 @@ const EmbeddingVisualization: React.FC = () => {
       }
 
       try {
-        // Prepare data in Arrow format
+        // Filter points at data level if clusters are selected
+        const filteredPoints = selectedClusters.length > 0 
+          ? points.filter(p => selectedClusters.includes(p.cluster))
+          : points;
+        
+        // Debug logging for filtering
+        console.log('Point filtering debug:', {
+          totalPoints: points.length,
+          selectedClusters,
+          filteredPoints: filteredPoints.length,
+          isFiltering: selectedClusters.length > 0,
+          uniqueClustersInData: Array.from(new Set(points.map(p => p.cluster))).sort()
+        });
+        
+        // Safety check: if no points after filtering, don't update plot
+        if (filteredPoints.length === 0 && selectedClusters.length > 0) {
+          console.warn('No points match the selected clusters:', selectedClusters);
+          return;
+        }
+        
+        // Prepare data in Arrow format 
         const data: { [key: string]: ArrayLike<number> } = {
           x: Float32Array.from(filteredPoints.map(p => p.x)),
           y: Float32Array.from(filteredPoints.map(p => p.y)),
@@ -488,9 +533,9 @@ const EmbeddingVisualization: React.FC = () => {
         }
         const table = tableFromArrays(data);
 
-        // Configuration for Deepscatter
-        const plotConfig = {
-          max_points: points.length, // Max points based on the *original* dataset size for consistent zooming? Or filteredPoints.length? Test behavior. Let's use original points length for now.
+        // Configuration for Deepscatter without encoding filters
+        const plotConfig: any = {
+          max_points: points.length, // Keep original max for consistent scaling
           point_size: 5,
           background_color: '#ffffff',
           encoding: {
@@ -499,7 +544,7 @@ const EmbeddingVisualization: React.FC = () => {
             ...(selectedDimensions === 3 && {
               z: { field: 'z', transform: 'literal' },
             }),
-            color: { field: 'cluster', range: 'Cool' }, // Or use a different categorical scheme if needed
+            color: { field: 'cluster', range: 'Cool' },
           },
           arrow_table: table,
           width: container.offsetWidth,
@@ -507,10 +552,32 @@ const EmbeddingVisualization: React.FC = () => {
           interactionMode: selectedDimensions === 3 ? 'orbit' : 'pan',
         };
 
-        if (!scatterplotInstanceRef.current) {
-          // Initialize
-          scatterplotInstanceRef.current =  new Scatterplot(`#${CHART_PARENT_ID}`);
+        console.log('Plot config with filtering:', {
+          totalPoints: points.length,
+          filteredPoints: filteredPoints.length,
+          selectedClusters,
+          hasFilter: selectedClusters.length > 0
+        });
+
+        // Force re-initialization when filtering changes to ensure proper data update
+        const isCurrentlyFiltering = selectedClusters.length > 0;
+        const isShowingAllPoints = filteredPoints.length === points.length;
+        const needsReinitialization = !scatterplotInstanceRef.current || 
+          isCurrentlyFiltering || 
+          (!isCurrentlyFiltering && !isShowingAllPoints);
+        
+        if (!scatterplotInstanceRef.current || needsReinitialization) {
+          // Destroy existing instance if it exists
+          if (scatterplotInstanceRef.current) {
+            console.log('Destroying existing plot for re-initialization due to filtering');
+            scatterplotInstanceRef.current.destroy?.();
+            scatterplotInstanceRef.current = null;
+          }
+          
+          // Initialize new instance
+          scatterplotInstanceRef.current = new Scatterplot(`#${CHART_PARENT_ID}`);
           scatterplotInstanceRef.current.tooltip_html = handleTooltip;
+          scatterplotInstanceRef.current.click_function = handlePointClick;
 
           await scatterplotInstanceRef.current.plotAPI(plotConfig);
           
@@ -519,10 +586,8 @@ const EmbeddingVisualization: React.FC = () => {
             await addLabelsToPlot(scatterplotInstanceRef.current, clusterLabels);
           }
           
-          scatterplotInstanceRef.current.click_function = handlePointClick;
-          
         } else {
-          // Update existing instance
+          // Update existing instance for non-filtering changes
           await scatterplotInstanceRef.current.plotAPI(plotConfig);
           
           // Update labels
@@ -557,7 +622,7 @@ const EmbeddingVisualization: React.FC = () => {
       // not necessarily on every re-run of this effect if just parameters change.
     };
 
-  }, [filteredPoints, selectedDimensions, isLoadingData, points.length, showLabels, clusterLabels]); // Dependencies: Run when data/filters change or loading completes
+  }, [points, selectedDimensions, isLoadingData, showLabels, clusterLabels, selectedClusters]); // Dependencies: Run when data/filters change or loading completes
 
   // Effect: Component Unmount Cleanup
   useEffect(() => {
@@ -775,6 +840,7 @@ const EmbeddingVisualization: React.FC = () => {
                   allowClear
                   placeholder="All Clusters"
                   style={{ width: '100%' }}
+                  value={selectedClusters}
                   onChange={handleFilterChange}
                   options={uniqueClusters.map((cluster) => ({
                       label: `Cluster ${cluster}`,
@@ -783,6 +849,38 @@ const EmbeddingVisualization: React.FC = () => {
                   disabled={isLoadingData || points.length === 0}
                   loading={isLoadingData}
                 />
+                {selectedClusters.length > 0 && (
+                  <Button 
+                    size="small" 
+                    onClick={handleClearFilters}
+                    style={{ width: '100%' }}
+                    type="default"
+                  >
+                    Clear Filters ({selectedClusters.length} selected)
+                  </Button>
+                )}
+                {/* Filtering status indicator */}
+                <div style={{ 
+                  fontSize: '12px', 
+                  color: selectedClusters.length > 0 ? '#1890ff' : '#666',
+                  marginTop: '8px',
+                  padding: '6px',
+                  border: `1px solid ${selectedClusters.length > 0 ? '#1890ff' : '#d9d9d9'}`,
+                  borderRadius: '4px',
+                  backgroundColor: selectedClusters.length > 0 ? '#f0f8ff' : '#fafafa'
+                }}>
+                  {selectedClusters.length > 0 ? (
+                    <>
+                      <strong>Filtering Active:</strong><br/>
+                      Showing {points.filter(p => selectedClusters.includes(p.cluster)).length} of {points.length} points
+                    </>
+                  ) : (
+                    <>
+                      <strong>No Filter:</strong><br/>
+                      Showing all {points.length} points
+                    </>
+                  )}
+                </div>
               </Space>
               <div className="label-controls-section">
                 <Text strong>Labels:</Text>

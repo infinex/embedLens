@@ -9,6 +9,7 @@ import ProjectDashboard from './components/ProjectDashboard';
 import FileManager from './components/FileManager';
 import ProcessingStatusHandler from './components/ProcessingStatusHandler';
 import NavigationBreadcrumb from './components/NavigationBreadcrumb';
+import VietnamScatterplot from './components/VietnamScatterplot';
 
 const { Content } = Layout;
 
@@ -47,6 +48,7 @@ function App() {
         <Routes>
           <Route path="/" element={<ProjectDashboard />} />
           <Route path="/project/:projectId" element={<FileManager />} />
+          <Route path="/vietnam" element={<VietnamScatterplot />} />
           <Route path="/embeddings/:embeddingId" element={<EmbeddingVisualization />} />
           <Route path="/add-data" element={<AddDataWizardWrapper />} />
           <Route path="/add-data/:projectId" element={<AddDataWizardWrapper />} />
